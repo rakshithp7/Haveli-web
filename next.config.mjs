@@ -2,14 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    typedRoutes: true,
     optimizePackageImports: ['react', 'react-dom', 'zustand', 'sonner'],
-    turbo: {
-      rules: {
-        // Enable turbo for improved build performance
-      },
-    },
   },
+  typedRoutes: true,
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -33,9 +33,9 @@ export function Navbar() {
       )}>
       <div
         className={cn(
-          'transition-colors transition-shadow transition-transform duration-300 ease-in-out max-w-5xl mx-auto border border-transparent',
+          'transition duration-300 ease-in-out max-w-5xl mx-auto border border-transparent',
           scrolled
-            ? 'rounded-2xl border-white/10 bg-gradient-to-r from-black/40 to-black/30 shadow-lg backdrop-blur-xl supports-[backdrop-filter]:bg-black/20'
+            ? 'rounded-2xl shadow-lg backdrop-blur-xl border-black/10 bg-gradient-to-r from-white/80 to-white/70 supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:from-black/40 dark:to-black/30 dark:supports-[backdrop-filter]:bg-black/20'
             : 'border-transparent bg-transparent'
         )}>
         <div className={cn('container-responsive grid h-16 items-center', 'grid-cols-2 md:grid-cols-[auto_auto_auto]')}>
@@ -56,7 +56,7 @@ export function Navbar() {
                 <Link href="/">
                   <motion.img
                     key="nav-logo"
-                    layoutId={isHomePage ? "haveli-logo" : "nav-logo"}
+                    layoutId={isHomePage ? 'haveli-logo' : 'nav-logo'}
                     src="/logo.webp"
                     alt="Haveli"
                     width={120}
@@ -91,7 +91,7 @@ export function Navbar() {
                 <Link href="/">
                   <motion.img
                     key="mobile-nav-logo"
-                    layoutId={isHomePage ? "haveli-logo-mobile" : "mobile-nav-logo"}
+                    layoutId={isHomePage ? 'haveli-logo-mobile' : 'mobile-nav-logo'}
                     src="/logo.webp"
                     alt="Haveli"
                     width={100}
