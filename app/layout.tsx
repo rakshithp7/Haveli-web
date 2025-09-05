@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={lexendDeca.variable}>
       <body className="font-lexend">
         <Navbar />
-        <main className="min-h-[70vh]">{children}</main>
+        <main className="min-h-[70vh] pt-24">{children}</main>
         <Footer />
         <Toaster />
       </body>
