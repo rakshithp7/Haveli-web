@@ -15,7 +15,7 @@ export default function HomePage() {
   const { navScrolled: scrolled } = useUIStore();
 
   return (
-    <div>
+    <div className="-mt-24">
       {/* Hero */}
       <section className="relative grid min-h-screen place-items-center overflow-hidden">
         {/* Hero background with image and gradient overlay */}
@@ -30,16 +30,18 @@ export default function HomePage() {
             <h1 className="sr-only">Haveli — Authentic Indian Cuisine</h1>
             <AnimatePresence mode="wait" initial={false}>
               {!scrolled && (
-                <motion.img
-                  key="hero-logo"
-                  layoutId="haveli-logo"
-                  src="/logo.webp"
-                  alt="Haveli"
-                  width={240}
-                  height={72}
-                  className="mx-auto h-auto w-[240px] md:w-[400px] xl:w-[500px]"
-                  transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.6 }}
-                />
+                <Link href="/">
+                  <motion.img
+                    key="hero-logo"
+                    layoutId="haveli-logo"
+                    src="/logo.webp"
+                    alt="Haveli"
+                    width={240}
+                    height={72}
+                    className="mx-auto h-auto w-[240px] md:w-[400px] xl:w-[500px] cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                    transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.6 }}
+                  />
+                </Link>
               )}
             </AnimatePresence>
             <p className="mt-6 inline-block rounded-full bg-[--color-brand]/10 px-4 py-1.5 text-[--color-brand] text-lg font-medium tracking-wide">

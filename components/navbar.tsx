@@ -5,6 +5,7 @@ import { useCartStore } from '@/store/cart';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useUIStore } from '@/store/ui';
+import { usePathname } from 'next/navigation';
 
 export function Navbar() {
   const count = useCartStore((s) => s.totalQuantity);
@@ -14,6 +15,8 @@ export function Navbar() {
     scrolled: s.navScrolled,
     setNavScrolled: s.setNavScrolled,
   }));
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
 
   // Handle scroll detection for all pages
   useMotionValueEvent(scrollY, 'change', (v) => {
@@ -46,20 +49,22 @@ export function Navbar() {
             </Link>
           </nav>
 
-          {/* Center logo (shown when scrolled on md+) with shared layoutId */}
+          {/* Center logo (shown when scrolled on home page, or always on other pages) */}
           <div id="nav-center" className="hidden items-center justify-center md:flex">
             <AnimatePresence initial={false}>
-              {scrolled && (
-                <motion.img
-                  key="nav-logo"
-                  layoutId="haveli-logo"
-                  src="/logo.webp"
-                  alt="Haveli"
-                  width={120}
-                  height={36}
-                  className="h-8 w-auto"
-                  transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.6 }}
-                />
+              {(scrolled || !isHomePage) && (
+                <Link href="/">
+                  <motion.img
+                    key="nav-logo"
+                    layoutId={isHomePage ? "haveli-logo" : "nav-logo"}
+                    src="/logo.webp"
+                    alt="Haveli"
+                    width={120}
+                    height={36}
+                    className="h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                    transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.6 }}
+                  />
+                </Link>
               )}
             </AnimatePresence>
           </div>
@@ -79,8 +84,28 @@ export function Navbar() {
             </Link>
           </nav>
 
+          {/* Mobile logo (shown when scrolled on home page, or always on other pages) */}
+          <div className="flex items-center md:hidden">
+            <AnimatePresence initial={false}>
+              {(scrolled || !isHomePage) && (
+                <Link href="/">
+                  <motion.img
+                    key="mobile-nav-logo"
+                    layoutId={isHomePage ? "haveli-logo-mobile" : "mobile-nav-logo"}
+                    src="/logo.webp"
+                    alt="Haveli"
+                    width={100}
+                    height={30}
+                    className="h-6 w-auto cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                    transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.6 }}
+                  />
+                </Link>
+              )}
+            </AnimatePresence>
+          </div>
+
           {/* Mobile controls */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-2 md:hidden justify-self-end">
             <Link href="/order" className="relative inline-flex items-center gap-2" onClick={() => setOpen(false)}>
               <span>Order</span>
               {count > 0 && (
