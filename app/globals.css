@@ -1,0 +1,60 @@
+@import 'tailwindcss';
+
+/* Tailwind v4 custom theme tokens */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue,
+    Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --color-bg: hsl(225 30% 12%);
+  --color-fg: hsl(45 25% 98%);
+  --color-muted: hsl(220 10% 70%);
+  --color-brand: #f59e0b;
+  --color-brand-600: #d97706;
+  --color-brand-700: #b45309;
+  --radius: 14px;
+}
+
+:root {
+  color-scheme: dark;
+  --radius: 0.625rem;
+
+  /* Theme Colors for our site */
+  --background: 225 30% 12%;
+  --foreground: 45 25% 98%;
+
+  /* Brand Colors */
+  --primary: 35 95% 50%; /* --color-brand */
+  --primary-foreground: 0 0% 0%; /* Text on primary color */
+
+  /* UI Colors */
+  --card: 225 30% 16%;
+  --card-foreground: 45 25% 98%;
+  --popover: 225 30% 16%;
+  --popover-foreground: 45 25% 98%;
+  --secondary: 225 30% 20%;
+  --secondary-foreground: 45 25% 98%;
+  --muted: 225 10% 30%;
+  --muted-foreground: 220 10% 70%;
+  --accent: 35 80% 40%;
+  --accent-foreground: 45 25% 98%;
+  --destructive: 0 80% 50%;
+  --destructive-foreground: 45 25% 98%;
+
+  /* Borders and Effects */
+  --border: 225 30% 25%;
+  --input: 225 30% 25%;
+  --ring: 35 95% 50%;
+}
+
+body {
+  @apply bg-[--color-bg] text-[--color-fg] antialiased;
+}
+
+@layer base {
+  * {
+    @apply border-[--border] outline-[--ring]/50;
+  }
+  .font-lexend {
+    font-family: var(--font-lexend), var(--font-sans);
+    font-feature-settings: 'ss01' 1, 'ss03' 1;
+  }
+}
