@@ -26,6 +26,8 @@ export function Navbar() {
 
   // On order page, hide navbar when scrolled to give more space for menu browsing
   const shouldHideNavbar = isOrderPage && scrolled;
+  // On order page when scrolled, hide floating cart since it moves to filter bar
+  const shouldHideFloatingCart = isOrderPage && scrolled;
 
   return (
     <header
@@ -37,18 +39,20 @@ export function Navbar() {
             ? 'sticky top-0 md:top-2' 
             : 'hidden md:block absolute left-0 right-0 top-8'
       )}>
-      {/* Floating Cart Icon */}
-      <div className="fixed top-4 right-4 z-40">
-        <div
-          className={cn(
-            'flex items-center justify-center p-2 rounded-full shadow-lg',
-            scrolled || !isHomePage
-              ? 'bg-white/90 dark:bg-black/70 text-black dark:text-white'
-              : 'bg-black/30 text-white'
-          )}>
-          <CartSheet />
+      {/* Floating Cart Icon - hidden on order page when scrolled */}
+      {!shouldHideFloatingCart && (
+        <div className="fixed top-4 right-4 z-40">
+          <div
+            className={cn(
+              'flex items-center justify-center p-2 rounded-full shadow-lg transition-all duration-300',
+              scrolled || !isHomePage
+                ? 'bg-white/90 dark:bg-black/70 text-black dark:text-white'
+                : 'bg-black/30 text-white'
+            )}>
+            <CartSheet />
+          </div>
         </div>
-      </div>
+      )}
       <div
         className={cn(
           'transition duration-300 ease-in-out max-w-4xl mx-auto border border-transparent',

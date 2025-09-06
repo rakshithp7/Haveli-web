@@ -12,6 +12,7 @@ import { Select } from '@/components/ui/select';
 import { useCartStore } from '@/store/cart';
 import { useUIStore } from '@/store/ui';
 import { toast } from '@/components/ui/use-toast';
+import { CartSheet } from '@/components/cart-sheet';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -201,7 +202,7 @@ export default function OrderPage() {
     <div className="relative pb-4">
       {/* Fixed tabs section - higher z-index and positioned to be above navbar */}
       <div className="sticky top-0 z-40 bg-white shadow-sm py-4 border-b border-gray-100">
-        <div className="container mx-auto px-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="container mx-auto px-4 flex flex-wrap items-center justify-between gap-4 relative">
           <div className="overflow-x-auto flex-grow md:flex-grow-0 md:max-w-[75%] flex flex-row flex-nowrap items-center">
             {categories.map((c) => (
               <TabsTrigger
@@ -226,6 +227,13 @@ export default function OrderPage() {
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
           </div>
+          
+          {/* Cart icon in filter bar when scrolled - positioned at far right */}
+          {scrolled && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 translate-x-22 flex items-center justify-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors shadow-md">
+              <CartSheet />
+            </div>
+          )}
         </div>
       </div>
 
