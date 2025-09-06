@@ -10,7 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { useCartStore } from '@/store/cart';
+import { useUIStore } from '@/store/ui';
 import { toast } from '@/components/ui/use-toast';
+import { CartSheet } from '@/components/cart-sheet';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -86,6 +88,57 @@ export default function OrderPage() {
   const remove = useCartStore((s) => s.remove);
   const setQty = useCartStore((s) => s.setQty);
   const clear = useCartStore((s) => s.clear);
+  const scrolled = useUIStore((s) => s.navScrolled);
+
+  // Quantity control component
+  const QuantityControl = ({ itemId, item }: { itemId: string; item: { id: string; name: string; priceCents: number } }) => {
+    const currentQty = lines[itemId]?.qty || 0;
+
+    if (currentQty === 0) {
+      return (
+        <Button
+          onClick={() => {
+            add(item, 1);
+            toast.success(`${item.name} added to cart`);
+          }}
+          className="w-full">
+          Add
+        </Button>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-between bg-gray-50 rounded-lg p-1 w-full">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            if (currentQty === 1) {
+              remove(itemId);
+              toast.success(`${item.name} removed from cart`);
+            } else {
+              setQty(itemId, currentQty - 1);
+            }
+          }}
+          className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600">
+          −
+        </Button>
+        <span className="px-3 py-1 bg-white rounded font-medium min-w-[2rem] text-center">
+          {currentQty}
+        </span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setQty(itemId, currentQty + 1);
+            toast.success(`${item.name} added to cart`);
+          }}
+          className="h-8 w-8 p-0 hover:bg-green-100 hover:text-green-600">
+          +
+        </Button>
+      </div>
+    );
+  };
   const [loading, setLoading] = useState(true);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
@@ -147,9 +200,9 @@ export default function OrderPage() {
 
   return (
     <div className="relative pb-4">
-      {/* Fixed tabs section */}
-      <div className="sticky top-0 z-30 bg-white shadow-sm py-4">
-        <div className="container mx-auto px-4 flex flex-wrap items-center justify-between gap-4">
+      {/* Fixed tabs section - higher z-index and positioned to be above navbar */}
+      <div className="sticky top-0 z-40 bg-white shadow-sm py-4 border-b border-gray-100">
+        <div className="container mx-auto px-4 flex flex-wrap items-center justify-between gap-4 relative">
           <div className="overflow-x-auto flex-grow md:flex-grow-0 md:max-w-[75%] flex flex-row flex-nowrap items-center">
             {categories.map((c) => (
               <TabsTrigger
@@ -174,6 +227,13 @@ export default function OrderPage() {
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
           </div>
+          
+          {/* Cart icon in filter bar when scrolled - positioned at far right */}
+          {scrolled && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 translate-x-22 flex items-center justify-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors shadow-md">
+              <CartSheet />
+            </div>
+          )}
         </div>
       </div>
 
@@ -199,7 +259,13 @@ export default function OrderPage() {
                 filteredItems.map((item) => (
                   <div key={item.id} className="card overflow-hidden">
                     <div className="relative aspect-[4/3]">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" />
+                      <Image 
+                        src={item.image} 
+                        alt={item.name} 
+                        fill 
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
                     </div>
                     <div className="p-4">
                       <div className="flex items-center justify-between">
@@ -212,13 +278,10 @@ export default function OrderPage() {
                         {item.spicy && <Badge className="badge-spicy">🌶 Spicy</Badge>}
                       </div>
                       <div className="mt-4">
-                        <Button
-                          onClick={() => {
-                            add({ id: item.id, name: item.name, priceCents: item.priceCents }, 1);
-                            toast.success(`${item.name} added to cart`);
-                          }}>
-                          Add
-                        </Button>
+                        <QuantityControl 
+                          itemId={item.id} 
+                          item={{ id: item.id, name: item.name, priceCents: item.priceCents }} 
+                        />
                       </div>
                     </div>
                   </div>
@@ -260,7 +323,13 @@ export default function OrderPage() {
                   : getMenuByCategory(category).map((item) => (
                       <div key={item.id} className="card overflow-hidden">
                         <div className="relative aspect-[4/3]">
-                          <Image src={item.image} alt={item.name} fill className="object-cover" />
+                          <Image 
+                        src={item.image} 
+                        alt={item.name} 
+                        fill 
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
                         </div>
                         <div className="p-4">
                           <div className="flex items-center justify-between">
@@ -275,13 +344,10 @@ export default function OrderPage() {
                             {item.spicy && <Badge className="badge-spicy">🌶 Spicy</Badge>}
                           </div>
                           <div className="mt-4">
-                            <Button
-                              onClick={() => {
-                                add({ id: item.id, name: item.name, priceCents: item.priceCents }, 1);
-                                toast.success(`${item.name} added to cart`);
-                              }}>
-                              Add
-                            </Button>
+                            <QuantityControl 
+                              itemId={item.id} 
+                              item={{ id: item.id, name: item.name, priceCents: item.priceCents }} 
+                            />
                           </div>
                         </div>
                       </div>

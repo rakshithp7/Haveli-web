@@ -19,7 +19,7 @@ export function CartSheet() {
   const lines = useCartStore((s) => s.lines);
   const remove = useCartStore((s) => s.remove);
   const setQty = useCartStore((s) => s.setQty);
-  const count = useCartStore((s) => s.totalQuantity);
+  const count = useCartStore((s) => Object.values(s.lines).reduce((a, l) => a + l.qty, 0));
   const [open, setOpen] = useState(false);
 
   const subtotal = Object.values(lines).reduce((a, l) => a + l.priceCents * l.qty, 0);
@@ -30,13 +30,13 @@ export function CartSheet() {
         <button className="relative inline-flex items-center justify-center">
           <ShoppingCart className="h-5 w-5" />
           {count > 0 && (
-            <span className="absolute -right-2 -top-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[--color-brand] px-1 text-[10px] text-white">
+            <span className="absolute -right-2 -top-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] text-white">
               {count}
             </span>
           )}
         </button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md flex flex-col">
+      <SheetContent className="w-full sm:max-w-md flex flex-col bg-white">
         <SheetHeader>
           <SheetTitle>Your Cart</SheetTitle>
         </SheetHeader>

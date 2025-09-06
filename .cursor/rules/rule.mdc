@@ -1,0 +1,19 @@
+---
+description: "Apply high-confidence decisions, avoid overengineering, use best practices only."
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Rules
+
+- 🔒 Only perform actions (edits, suggestions, completions) if you are **at least 95% confident** in the outcome.
+- ❓ If confidence is **below 95%**, **pause** and ask the user for clarification.
+- 🤖 Do **not make assumptions** — better to ask questions than to proceed with low certainty.
+- 🚫 Avoid **overengineering**. Always prefer the **simplest and most efficient solution** that meets the requirement.
+- 🧹 Do **not write redundant, unnecessary, or bloated code**. Keep logic clean and minimal.
+- ✅ Always follow **industry-standard best coding practices**, including:
+  - Clear naming conventions
+  - Code readability and maintainability
+  - Efficient use of data structures and algorithms
+  - Comments only when helpful (avoid noise)
+- 📣 If unsure whether to optimize, refactor, or add new code, **ask the user first**.
