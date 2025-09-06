@@ -41,7 +41,7 @@ export function CartSheet() {
           <SheetTitle>Your Cart</SheetTitle>
         </SheetHeader>
 
-        <div className="flex-grow overflow-y-auto py-4">
+        <div className="flex-grow overflow-y-auto py-4 border-t pt-4">
           {Object.keys(lines).length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <ShoppingCart className="h-12 w-12 mb-4 text-muted-foreground" />
@@ -93,7 +93,7 @@ export function CartSheet() {
               </div>
               <SheetClose asChild>
                 <Link href="/order" className="w-full">
-                  <Button className="w-full">Checkout</Button>
+                  <Button className="w-full bg-green-600 text-white hover:bg-green-700">Checkout</Button>
                 </Link>
               </SheetClose>
             </div>
