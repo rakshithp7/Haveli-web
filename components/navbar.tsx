@@ -1,20 +1,18 @@
 'use client';
 import Link from 'next/link';
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
-import { useCartStore } from '@/store/cart';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useUIStore } from '@/store/ui';
 import { usePathname } from 'next/navigation';
+import { CartSheet } from './cart-sheet';
 
 export function Navbar() {
-  const count = useCartStore((s) => s.totalQuantity);
   const [open, setOpen] = useState(false);
   const { scrollY } = useScroll();
-  const { scrolled, setNavScrolled } = useUIStore((s) => ({
-    scrolled: s.navScrolled,
-    setNavScrolled: s.setNavScrolled,
-  }));
+  // Access store values individually to avoid object creation on each render
+  const scrolled = useUIStore((s) => s.navScrolled);
+  const setNavScrolled = useUIStore((s) => s.setNavScrolled);
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 
@@ -29,22 +27,44 @@ export function Navbar() {
     <header
       className={cn(
         'z-30 transition-all duration-300 ease-in-out',
-        scrolled ? 'sticky top-2' : 'absolute left-0 right-0 top-8'
+        scrolled ? 'sticky top-0 md:top-2' : 'hidden md:block absolute left-0 right-0 top-8'
       )}>
+      {/* Floating Cart Icon */}
+      <div className="fixed top-4 right-4 z-40">
+        <div
+          className={cn(
+            'flex items-center justify-center p-2 rounded-full shadow-lg',
+            scrolled || !isHomePage
+              ? 'bg-white/90 dark:bg-black/70 text-black dark:text-white'
+              : 'bg-black/30 text-white'
+          )}>
+          <CartSheet />
+        </div>
+      </div>
       <div
         className={cn(
-          'transition duration-300 ease-in-out max-w-5xl mx-auto border border-transparent',
+          'transition duration-300 ease-in-out max-w-4xl mx-auto border border-transparent',
           scrolled
-            ? 'rounded-2xl shadow-lg backdrop-blur-xl border-black/10 bg-gradient-to-r from-white/80 to-white/70 supports-[backdrop-filter]:bg-white/60 dark:border-white/10 dark:from-black/40 dark:to-black/30 dark:supports-[backdrop-filter]:bg-black/20'
+            ? 'rounded-none md:rounded-2xl shadow-lg backdrop-blur-xl border-black/10 bg-gradient-to-r from-white/90 to-white/80 supports-[backdrop-filter]:bg-white/70 dark:border-white/10 dark:from-black/40 dark:to-black/30 dark:supports-[backdrop-filter]:bg-black/20'
             : 'border-transparent bg-transparent'
         )}>
         <div className={cn('container-responsive grid h-16 items-center', 'grid-cols-2 md:grid-cols-[auto_auto_auto]')}>
           {/* Left region (desktop): Menu, Contact always on left */}
-          <nav className={cn('hidden items-center justify-self-end text-lg md:flex', scrolled ? 'gap-12' : 'gap-24')}>
-            <Link href="/menu" className="hover:text-[--color-brand]">
+          <nav className={cn('hidden items-center justify-self-end text-lg md:flex gap-24')}>
+            <Link
+              href="/menu"
+              className={cn(
+                'nav-link transition-colors',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]'
+              )}>
               Menu
             </Link>
-            <Link href="/contact" className="hover:text-[--color-brand]">
+            <Link
+              href="/contact"
+              className={cn(
+                'nav-link transition-colors',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]'
+              )}>
               Contact
             </Link>
           </nav>
@@ -70,22 +90,27 @@ export function Navbar() {
           </div>
 
           {/* Right region (desktop): Catering, Order always on right, closer to center */}
-          <nav className={cn('hidden items-center justify-self-start text-lg md:flex', scrolled ? 'gap-12' : 'gap-24')}>
-            <Link href="/catering" className="hover:text-[--color-brand]">
+          <nav className={cn('hidden items-center justify-self-start text-lg md:flex gap-24')}>
+            <Link
+              href="/catering"
+              className={cn(
+                'nav-link transition-colors',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]'
+              )}>
               Catering
             </Link>
-            <Link href="/order" className="relative inline-flex items-center gap-2">
-              <span>Order</span>
-              {count > 0 && (
-                <span className="absolute -right-2 -top-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[--color-brand] px-1 text-[10px] text-white">
-                  {count}
-                </span>
-              )}
+            <Link
+              href="/order"
+              className={cn(
+                'nav-link transition-colors',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]'
+              )}>
+              Order
             </Link>
           </nav>
 
           {/* Mobile logo (shown when scrolled on home page, or always on other pages) */}
-          <div className="flex items-center md:hidden">
+          <div className="flex items-center md:hidden ml-4">
             <AnimatePresence initial={false}>
               {(scrolled || !isHomePage) && (
                 <Link href="/">
@@ -105,15 +130,16 @@ export function Navbar() {
           </div>
 
           {/* Mobile controls */}
-          <div className="flex items-center gap-2 md:hidden justify-self-end">
+          <div className="flex items-center gap-6 md:hidden justify-self-end mr-4">
             <Link href="/order" className="relative inline-flex items-center gap-2" onClick={() => setOpen(false)}>
-              <span>Order</span>
-              {count > 0 && (
-                <span className="absolute -right-2 -top-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[--color-brand] px-1 text-[10px] text-white">
-                  {count}
-                </span>
-              )}
+              <span
+                className={cn(
+                  isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]'
+                )}>
+                Order
+              </span>
             </Link>
+
             <button
               aria-label="Toggle menu"
               aria-expanded={open}
@@ -160,13 +186,31 @@ export function Navbar() {
             open ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
           )}>
           <div className="flex flex-col gap-2 py-2 text-sm">
-            <Link href="/menu" className="rounded-md px-2 py-2 hover:bg-black/5" onClick={() => setOpen(false)}>
+            <Link
+              href="/menu"
+              className={cn(
+                'rounded-md px-2 py-2 hover:bg-black/5',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : ''
+              )}
+              onClick={() => setOpen(false)}>
               Menu
             </Link>
-            <Link href="/catering" className="rounded-md px-2 py-2 hover:bg-black/5" onClick={() => setOpen(false)}>
+            <Link
+              href="/catering"
+              className={cn(
+                'rounded-md px-2 py-2 hover:bg-black/5',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : ''
+              )}
+              onClick={() => setOpen(false)}>
               Catering
             </Link>
-            <Link href="/contact" className="rounded-md px-2 py-2 hover:bg-black/5" onClick={() => setOpen(false)}>
+            <Link
+              href="/contact"
+              className={cn(
+                'rounded-md px-2 py-2 hover:bg-black/5',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : ''
+              )}
+              onClick={() => setOpen(false)}>
               Contact
             </Link>
           </div>

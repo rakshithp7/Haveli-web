@@ -1,141 +1,308 @@
-"use client";
-import { useEffect, useMemo, useState } from "react";
-import { useCartStore } from "@/store/cart";
-import { formatCurrency } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import { env } from "@/lib/env";
-import { useRouter } from "next/navigation";
+'use client';
+import Image from 'next/image';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { categories, getMenuByCategory } from '@/data/menu';
+import { formatCurrency } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
+import { useCartStore } from '@/store/cart';
+import { toast } from '@/components/ui/use-toast';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { env } from '@/lib/env';
+import { useRouter } from 'next/navigation';
 
 const stripePromise = env.stripe.pk ? loadStripe(env.stripe.pk) : null;
 
 const schema = z.object({
   name: z.string().min(2),
   phone: z.string().min(7),
-  tipPercent: z.enum(["0", "10", "15", "20"]).default("0"),
-  pickup: z.enum(["ASAP", "+15", "+30"]).default("ASAP"),
+  tipPercent: z.enum(['0', '10', '15', '20']).default('0'),
+  pickup: z.enum(['ASAP', '+15', '+30']).default('ASAP'),
   notes: z.string().max(300).optional(),
 });
 type Values = z.infer<typeof schema>;
 
 export default function OrderPage() {
+  // Function to get icon based on category
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Appetizers Veg':
+        return (
+          <span role="img" aria-label="Vegetarian appetizers">
+            🥗
+          </span>
+        );
+      case 'Appetizers Non-Veg':
+        return (
+          <span role="img" aria-label="Non-vegetarian appetizers">
+            🍗
+          </span>
+        );
+      case 'Entrees Veg':
+        return (
+          <span role="img" aria-label="Vegetarian main course">
+            🥘
+          </span>
+        );
+      case 'Entrees Chicken':
+        return (
+          <span role="img" aria-label="Chicken main course">
+            🍛
+          </span>
+        );
+      case 'Breads':
+        return (
+          <span role="img" aria-label="Breads">
+            🥖
+          </span>
+        );
+      case 'Drinks':
+        return (
+          <span role="img" aria-label="Drinks">
+            🥤
+          </span>
+        );
+      default:
+        return (
+          <span role="img" aria-label="Food item">
+            🍽️
+          </span>
+        );
+    }
+  };
+
+  const [active, setActive] = useState(categories[0]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const add = useCartStore((s) => s.add);
   const lines = useCartStore((s) => s.lines);
   const remove = useCartStore((s) => s.remove);
   const setQty = useCartStore((s) => s.setQty);
   const clear = useCartStore((s) => s.clear);
+  const [loading, setLoading] = useState(true);
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  const subtotal = useMemo(
-    () => Object.values(lines).reduce((a, l) => a + l.priceCents * l.qty, 0),
-    [lines]
-  );
-  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { tipPercent: "0", pickup: "ASAP" } });
-  const tipPercent = Number(form.watch("tipPercent"));
+  const subtotal = useMemo(() => Object.values(lines).reduce((a, l) => a + l.priceCents * l.qty, 0), [lines]);
+  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { tipPercent: '0', pickup: 'ASAP' } });
+  const tipPercent = Number(form.watch('tipPercent'));
   const tipCents = Math.round((subtotal * tipPercent) / 100);
   const totalCents = subtotal + tipCents;
 
-  return (
-    <div className="container-responsive py-6">
-      <h1 className="mb-4 text-xl font-semibold">Your Order</h1>
-      {Object.keys(lines).length === 0 ? (
-        <p className="text-muted">Your cart is empty. Visit the menu to add items.</p>
-      ) : (
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <ul className="divide-y divide-black/5 rounded-md border border-black/10 bg-white">
-              {Object.values(lines).map((l) => (
-                <li key={l.id} className="grid grid-cols-[1fr_auto] items-center gap-3 p-3 sm:grid-cols-[1fr_auto_auto]">
-                  <div>
-                    <p className="font-medium">{l.name}</p>
-                    <p className="text-sm text-muted">{formatCurrency(l.priceCents)} each</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button className="btn btn-outline h-8 px-2" onClick={() => setQty(l.id, l.qty - 1)}>-</button>
-                    <span className="w-6 text-center">{l.qty}</span>
-                    <button className="btn btn-outline h-8 px-2" onClick={() => setQty(l.id, l.qty + 1)}>+</button>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-medium">{formatCurrency(l.qty * l.priceCents)}</span>
-                    <button className="text-sm text-red-600" onClick={() => remove(l.id)}>Remove</button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(t);
+  }, []);
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium">Tip</label>
-                <div className="flex gap-2">
-                  {["0", "10", "15", "20"].map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => form.setValue("tipPercent", p as any)}
-                      className={
-                        "btn " + (form.watch("tipPercent") === p ? "btn-primary" : "btn-outline")
-                      }
-                    >
-                      {p}%
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium">Pickup Time</label>
-                <Select value={form.watch("pickup")} onChange={(e) => form.setValue("pickup", e.target.value as any)}>
-                  <option value="ASAP">ASAP</option>
-                  <option value="+15">+15 minutes</option>
-                  <option value="+30">+30 minutes</option>
-                </Select>
-              </div>
-              <div className="sm:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Notes</label>
-                <Textarea placeholder="Any special requests?" {...form.register("notes")} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium">Name</label>
-                <Input placeholder="Your full name" {...form.register("name")} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium">Phone</label>
-                <Input placeholder="(555) 000-0000" {...form.register("phone")} />
-              </div>
-            </div>
+  // Scroll to section when tab is clicked
+  const scrollToSection = (category: typeof active) => {
+    setActive(category);
+    const sectionRef = sectionRefs.current[category];
+    if (sectionRef) {
+      sectionRef.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Update active tab based on scroll position
+  useEffect(() => {
+    if (loading) return;
+
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 170; // Increased offset for the fixed header
+
+      // Find which section is currently in view
+      let currentSection = categories[0];
+      for (const category of categories) {
+        const section = sectionRefs.current[category];
+        if (section && section.offsetTop <= scrollPosition) {
+          currentSection = category;
+        }
+      }
+
+      if (currentSection !== active) {
+        setActive(currentSection);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [active, loading]);
+
+  // Filter all items based on search query
+  const filteredItems = searchQuery
+    ? categories.flatMap((category) =>
+        getMenuByCategory(category).filter(
+          (item) =>
+            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.description.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      )
+    : [];
+
+  return (
+    <div className="relative pb-4">
+      {/* Fixed tabs section */}
+      <div className="sticky top-0 z-30 bg-white shadow-sm py-4">
+        <div className="container mx-auto px-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="overflow-x-auto flex-grow md:flex-grow-0 md:max-w-[75%] flex flex-row flex-nowrap items-center">
+            {categories.map((c) => (
+              <TabsTrigger
+                key={c}
+                value={c}
+                active={active === c}
+                onClick={() => scrollToSection(c)}
+                className="mr-2 mb-0">
+                {getCategoryIcon(c)}
+                <span className="ml-2">{c}</span>
+              </TabsTrigger>
+            ))}
           </div>
 
-          <div className="space-y-4">
-            <div className="rounded-md border border-black/10 bg-white p-4">
-              <h3 className="mb-2 font-medium">Summary</h3>
-              <div className="text-sm text-muted">
-                <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
-                <div className="flex justify-between"><span>Tip</span><span>{formatCurrency(tipCents)}</span></div>
-                <div className="mt-2 border-t border-black/10 pt-2 text-[--color-fg] font-semibold flex justify-between"><span>Total</span><span>{formatCurrency(totalCents)}</span></div>
-              </div>
-            </div>
-            {stripePromise ? (
-              <Elements stripe={stripePromise} options={{ appearance: { theme: "stripe" } }}>
-                <CheckoutBox totalCents={totalCents} clearCart={clear} lines={lines} formValues={form} />
-              </Elements>
-            ) : (
-              <p className="text-sm text-muted">Stripe not configured. Set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY to enable payments.</p>
-            )}
+          <div className="relative w-full md:w-auto max-w-[220px] shrink-0">
+            <Input
+              type="text"
+              placeholder="Search menu..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pr-10"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Content container */}
+      <div className="container mx-auto px-4 mt-4">
+        {/* Show search results if there's a search query */}
+        {searchQuery && (
+          <section className="py-6 mx-auto">
+            <h2 className="text-xl font-semibold mb-4">Search Results</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {loading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="card overflow-hidden">
+                    <div className="skeleton aspect-[4/3]" />
+                    <div className="p-4">
+                      <div className="skeleton h-4 w-1/2" />
+                      <div className="mt-2 skeleton h-3 w-3/4" />
+                      <div className="mt-4 skeleton h-8 w-24" />
+                    </div>
+                  </div>
+                ))
+              ) : filteredItems.length > 0 ? (
+                filteredItems.map((item) => (
+                  <div key={item.id} className="card overflow-hidden">
+                    <div className="relative aspect-[4/3]">
+                      <Image src={item.image} alt={item.name} fill className="object-cover" />
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-medium">{item.name}</h3>
+                        <span className="text-[--color-brand] font-semibold">{formatCurrency(item.priceCents)}</span>
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-sm text-muted">{item.description}</p>
+                      <div className="mt-2 flex gap-2">
+                        {item.veg && <Badge className="badge-veg">🌿 Veg</Badge>}
+                        {item.spicy && <Badge className="badge-spicy">🌶 Spicy</Badge>}
+                      </div>
+                      <div className="mt-4">
+                        <Button
+                          onClick={() => {
+                            add({ id: item.id, name: item.name, priceCents: item.priceCents }, 1);
+                            toast.success(`${item.name} added to cart`);
+                          }}>
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <p className="text-lg text-muted">No items found matching &ldquo;{searchQuery}&rdquo;</p>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Show all categories if there's no search query */}
+        {!searchQuery &&
+          categories.map((category) => (
+            <section
+              key={category}
+              className="py-8 mx-auto scroll-m-36"
+              ref={(el) => {
+                sectionRefs.current[category] = el;
+              }}>
+              <h2 className="text-2xl font-semibold mb-6 flex items-center">
+                {getCategoryIcon(category)}
+                <span className="ml-2">{category}</span>
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {loading
+                  ? Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="card overflow-hidden">
+                        <div className="skeleton aspect-[4/3]" />
+                        <div className="p-4">
+                          <div className="skeleton h-4 w-1/2" />
+                          <div className="mt-2 skeleton h-3 w-3/4" />
+                          <div className="mt-4 skeleton h-8 w-24" />
+                        </div>
+                      </div>
+                    ))
+                  : getMenuByCategory(category).map((item) => (
+                      <div key={item.id} className="card overflow-hidden">
+                        <div className="relative aspect-[4/3]">
+                          <Image src={item.image} alt={item.name} fill className="object-cover" />
+                        </div>
+                        <div className="p-4">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-medium">{item.name}</h3>
+                            <span className="text-[--color-brand] font-semibold">
+                              {formatCurrency(item.priceCents)}
+                            </span>
+                          </div>
+                          <p className="mt-1 line-clamp-2 text-sm text-muted">{item.description}</p>
+                          <div className="mt-2 flex gap-2">
+                            {item.veg && <Badge className="badge-veg">🌿 Veg</Badge>}
+                            {item.spicy && <Badge className="badge-spicy">🌶 Spicy</Badge>}
+                          </div>
+                          <div className="mt-4">
+                            <Button
+                              onClick={() => {
+                                add({ id: item.id, name: item.name, priceCents: item.priceCents }, 1);
+                                toast.success(`${item.name} added to cart`);
+                              }}>
+                              Add
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+              </div>
+            </section>
+          ))}
+      </div>
     </div>
   );
 }
 
-function CheckoutBox({ totalCents, clearCart, lines, formValues }: {
+function CheckoutBox({
+  totalCents,
+  clearCart,
+  lines,
+  formValues,
+}: {
   totalCents: number;
   clearCart: () => void;
-  lines: ReturnType<typeof useCartStore.getState>["lines"];
+  lines: ReturnType<typeof useCartStore.getState>['lines'];
   formValues: ReturnType<typeof useForm<Values>>;
 }) {
   const stripe = useStripe();
@@ -148,9 +315,9 @@ function CheckoutBox({ totalCents, clearCart, lines, formValues }: {
     const values = formValues.getValues();
     setSubmitting(true);
     try {
-      const res = await fetch("/api/create-payment-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           lines: Object.values(lines).map((l) => ({ id: l.id, qty: l.qty })),
           tipPercent: Number(values.tipPercent),
@@ -158,33 +325,32 @@ function CheckoutBox({ totalCents, clearCart, lines, formValues }: {
           notes: values.notes,
         }),
       });
-      if (!res.ok) throw new Error("Failed to create payment intent");
+      if (!res.ok) throw new Error('Failed to create payment intent');
       const data = await res.json();
       const { clientSecret, orderId } = data;
       const result = await stripe.confirmPayment({
         elements,
         clientSecret,
-        confirmParams: { return_url: window.location.origin + "/order/confirm?orderId=" + orderId },
-        redirect: "if_required",
+        confirmParams: { return_url: window.location.origin + '/order/confirm?orderId=' + orderId },
+        redirect: 'if_required',
       });
       if (result.error) throw result.error;
       clearCart();
       router.push(`/order/confirm?orderId=${orderId}`);
     } catch (e) {
       console.error(e);
-      alert("Payment failed. Please check details and try again.");
+      alert('Payment failed. Please check details and try again.');
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="space-y-3 rounded-md border border-black/10 bg-white p-4">
+    <div>
       <PaymentElement />
-      <Button onClick={onSubmit} disabled={submitting} className="w-full">
-        {submitting ? "Processing…" : `Pay ${formatCurrency(totalCents)}`}
+      <Button onClick={onSubmit} disabled={submitting} className="w-full mt-3">
+        {submitting ? 'Processing…' : `Pay ${formatCurrency(totalCents)}`}
       </Button>
     </div>
   );
 }
-
