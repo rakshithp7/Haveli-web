@@ -15,6 +15,7 @@ export function Navbar() {
   const setNavScrolled = useUIStore((s) => s.setNavScrolled);
   const pathname = usePathname();
   const isHomePage = pathname === '/';
+  const isOrderPage = pathname === '/order';
 
   // Handle scroll detection for all pages
   useMotionValueEvent(scrollY, 'change', (v) => {
@@ -23,11 +24,18 @@ export function Navbar() {
     if (next !== scrolled) setNavScrolled(next);
   });
 
+  // On order page, hide navbar when scrolled to give more space for menu browsing
+  const shouldHideNavbar = isOrderPage && scrolled;
+
   return (
     <header
       className={cn(
         'z-30 transition-all duration-300 ease-in-out',
-        scrolled ? 'sticky top-0 md:top-2' : 'hidden md:block absolute left-0 right-0 top-8'
+        shouldHideNavbar 
+          ? 'hidden' 
+          : scrolled 
+            ? 'sticky top-0 md:top-2' 
+            : 'hidden md:block absolute left-0 right-0 top-8'
       )}>
       {/* Floating Cart Icon */}
       <div className="fixed top-4 right-4 z-40">
