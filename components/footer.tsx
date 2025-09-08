@@ -26,16 +26,12 @@ export function Footer() {
             <address className="not-italic text-muted-foreground">
               <p className="mb-2 flex items-center gap-2">
                 <MapPin size={16} className="text-[--color-brand]" />
-                1251 E Fowler Ave
+                12908 N Dale Mabry Hwy
               </p>
-              <p className="mb-2 ml-6">Tampa, FL 33612</p>
+              <p className="mb-2 ml-6">Tampa, FL 33618</p>
               <p className="mb-2 flex items-center gap-2">
                 <Phone size={16} className="text-[--color-brand]" />
-                (813) 555-1234
-              </p>
-              <p className="mb-2 flex items-center gap-2">
-                <Mail size={16} className="text-[--color-brand]" />
-                info@haveli-tampa.com
+                (813) 488-6294
               </p>
             </address>
           </div>

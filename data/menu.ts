@@ -83,6 +83,7 @@ export const menu: MenuItem[] = [
     priceCents: 399,
     image: "/images/butternaan.jpg",
     category: "Breads",
+    veg: true,
   },
   {
     id: "mango-lassi",
