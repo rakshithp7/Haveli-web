@@ -26,6 +26,9 @@ export function CartSheet() {
   const [open, setOpen] = useState(false);
 
   const subtotal = Object.values(lines).reduce((a, l) => a + l.priceCents * l.qty, 0);
+  const taxRate = 0.075; // 7.5% sales tax
+  const taxAmount = Math.round(subtotal * taxRate);
+  const totalWithTax = subtotal + taxAmount;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -131,13 +134,29 @@ export function CartSheet() {
         {Object.keys(lines).length > 0 && (
           <SheetFooter className="border-t pt-4">
             <div className="w-full space-y-4">
-              <div className="flex justify-between">
+              {/* Subtotal */}
+              <div className="flex justify-between text-sm">
                 <span>Subtotal</span>
-                <span className="font-medium">{formatCurrency(subtotal)}</span>
+                <span>{formatCurrency(subtotal)}</span>
               </div>
+              
+              {/* Tax */}
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Tax (7.5%)</span>
+                <span>{formatCurrency(taxAmount)}</span>
+              </div>
+              
+              {/* Total */}
+              <div className="flex justify-between text-lg font-semibold border-t pt-2">
+                <span>Total</span>
+                <span>{formatCurrency(totalWithTax)}</span>
+              </div>
+              
               <SheetClose asChild>
                 <Link href="/order" className="w-full">
-                  <Button className="w-full bg-green-600 text-white hover:bg-green-700">Checkout</Button>
+                  <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white">
+                    Checkout • {formatCurrency(totalWithTax)}
+                  </Button>
                 </Link>
               </SheetClose>
             </div>
