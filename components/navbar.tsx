@@ -37,7 +37,7 @@ export function Navbar() {
           ? 'hidden' 
           : scrolled 
             ? 'sticky top-0 md:top-2' 
-            : 'hidden md:block absolute left-0 right-0 top-8'
+            : 'block absolute left-0 right-0 top-8 bg-white'
       )}>
       {/* Floating Cart Icon - hidden on order page when scrolled */}
       {!shouldHideFloatingCart && (
@@ -60,7 +60,7 @@ export function Navbar() {
             ? 'rounded-none md:rounded-2xl shadow-lg backdrop-blur-xl border-black/10 bg-gradient-to-r from-white/90 to-white/80 supports-[backdrop-filter]:bg-white/70 dark:border-white/10 dark:from-black/40 dark:to-black/30 dark:supports-[backdrop-filter]:bg-black/20'
             : 'border-transparent bg-transparent'
         )}>
-        <div className={cn('container-responsive grid h-16 items-center', 'grid-cols-2 md:grid-cols-[auto_auto_auto]')}>
+        <div className={cn('container-responsive grid h-16 items-center', 'grid-cols-3 md:grid-cols-[auto_auto_auto]')}>
           {/* Left region (desktop): Menu, Contact always on left */}
           <nav className={cn('hidden items-center justify-self-end text-lg md:flex gap-24')}>
             <Link
@@ -81,11 +81,12 @@ export function Navbar() {
             </Link>
           </nav>
 
-          {/* Center logo (shown when scrolled on home page, or always on other pages) */}
-          <div id="nav-center" className="hidden items-center justify-center md:flex">
+          {/* Center logo (desktop) / Center controls (mobile) */}
+          <div id="nav-center" className="flex items-center justify-center">
+            {/* Desktop: Logo in center */}
             <AnimatePresence initial={false}>
               {(scrolled || !isHomePage) && (
-                <Link href="/">
+                <Link href="/" className="hidden md:block">
                   <motion.img
                     key="nav-logo"
                     layoutId={isHomePage ? 'haveli-logo' : 'nav-logo'}
@@ -99,6 +100,59 @@ export function Navbar() {
                 </Link>
               )}
             </AnimatePresence>
+
+            {/* Mobile: Menu button and page name in center */}
+            <div className="flex items-center gap-3 md:hidden">
+              <button
+                aria-label="Toggle menu"
+                aria-expanded={open}
+                onClick={() => setOpen((v) => !v)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-black/20 hover:bg-black/30 text-white">
+                {open ? (
+                  // Close icon
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                ) : (
+                  // Hamburger icon
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                  </svg>
+                )}
+              </button>
+              
+              {/* Current page name */}
+              <span className={cn(
+                'text-sm font-medium',
+                isHomePage && !scrolled ? 'text-white' : 'text-gray-700'
+              )}>
+                {pathname === '/menu' ? 'Menu' :
+                 pathname === '/contact' ? 'Contact' :
+                 pathname === '/catering' ? 'Catering' :
+                 pathname === '/order' ? 'Order' :
+                 pathname === '/order/confirm' ? 'Checkout' :
+                 'Home'}
+              </span>
+            </div>
           </div>
 
           {/* Right region (desktop): Catering, Order always on right, closer to center */}
@@ -121,8 +175,8 @@ export function Navbar() {
             </Link>
           </nav>
 
-          {/* Mobile logo (shown when scrolled on home page, or always on other pages) */}
-          <div className="flex items-center md:hidden ml-4">
+          {/* Mobile left: Logo */}
+          <div className="flex items-center md:hidden justify-self-start ml-14">
             <AnimatePresence initial={false}>
               {(scrolled || !isHomePage) && (
                 <Link href="/">
@@ -141,53 +195,9 @@ export function Navbar() {
             </AnimatePresence>
           </div>
 
-          {/* Mobile controls */}
-          <div className="flex items-center gap-6 md:hidden justify-self-end mr-4">
-            <Link href="/order" className="relative inline-flex items-center gap-2" onClick={() => setOpen(false)}>
-              <span
-                className={cn(
-                  isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]'
-                )}>
-                Order
-              </span>
-            </Link>
-
-            <button
-              aria-label="Toggle menu"
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-black/20 hover:bg-black/30 text-white">
-              {open ? (
-                // Close icon
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              ) : (
-                // Hamburger icon
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round">
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
-              )}
-            </button>
+          {/* Mobile right: Empty space for balance */}
+          <div className="flex items-center md:hidden justify-self-end mr-4">
+            {/* Empty for balance */}
           </div>
         </div>
 
@@ -206,6 +216,15 @@ export function Navbar() {
               )}
               onClick={() => setOpen(false)}>
               Menu
+            </Link>
+            <Link
+              href="/order"
+              className={cn(
+                'rounded-md px-2 py-2 hover:bg-black/5',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : ''
+              )}
+              onClick={() => setOpen(false)}>
+              Order
             </Link>
             <Link
               href="/catering"
