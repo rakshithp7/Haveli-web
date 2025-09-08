@@ -8,11 +8,13 @@ export type CartLine = {
   name: string;
   priceCents: number;
   qty: number;
+  spiceLevel?: string;
+  specialInstructions?: string;
 };
 
 type CartState = {
   lines: Record<string, CartLine>; // key by id
-  add: (item: Pick<MenuItem, "id" | "name" | "priceCents">, qty?: number) => void;
+  add: (item: Pick<MenuItem, "id" | "name" | "priceCents">, qty?: number, spiceLevel?: string, specialInstructions?: string) => void;
   remove: (id: string) => void;
   setQty: (id: string, qty: number) => void;
   clear: () => void;
@@ -24,7 +26,7 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       lines: {},
-      add: (item, qty = 1) =>
+      add: (item, qty = 1, spiceLevel, specialInstructions) =>
         set((s) => {
           const existing = s.lines[item.id];
           const nextQty = (existing?.qty ?? 0) + qty;
@@ -36,6 +38,8 @@ export const useCartStore = create<CartState>()(
                 name: item.name,
                 priceCents: item.priceCents,
                 qty: nextQty,
+                spiceLevel: spiceLevel || existing?.spiceLevel,
+                specialInstructions: specialInstructions || existing?.specialInstructions,
               },
             },
           };

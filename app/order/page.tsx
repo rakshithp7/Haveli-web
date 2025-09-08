@@ -13,6 +13,7 @@ import { useCartStore } from '@/store/cart';
 import { useUIStore } from '@/store/ui';
 import { toast } from '@/components/ui/use-toast';
 import { CartSheet } from '@/components/cart-sheet';
+import { ItemModal } from '@/components/item-modal';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -89,18 +90,32 @@ export default function OrderPage() {
   const setQty = useCartStore((s) => s.setQty);
   const clear = useCartStore((s) => s.clear);
   const scrolled = useUIStore((s) => s.navScrolled);
+  
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    priceCents: number;
+    image: string;
+    veg?: boolean;
+    spicy?: boolean;
+  } | null>(null);
+
+  const openItemModal = (item: any) => {
+    setSelectedItem(item);
+    setModalOpen(true);
+  };
 
   // Quantity control component
-  const QuantityControl = ({ itemId, item }: { itemId: string; item: { id: string; name: string; priceCents: number } }) => {
+  const QuantityControl = ({ itemId, item }: { itemId: string; item: { id: string; name: string; priceCents: number; description: string; image: string; veg?: boolean; spicy?: boolean } }) => {
     const currentQty = lines[itemId]?.qty || 0;
 
     if (currentQty === 0) {
       return (
         <Button
-          onClick={() => {
-            add(item, 1);
-            toast.success(`${item.name} added to cart`);
-          }}
+          onClick={() => openItemModal(item)}
           className="w-full">
           Add
         </Button>
@@ -129,10 +144,7 @@ export default function OrderPage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => {
-            setQty(itemId, currentQty + 1);
-            toast.success(`${item.name} added to cart`);
-          }}
+          onClick={() => openItemModal(item)}
           className="h-8 w-8 p-0 hover:bg-green-100 hover:text-green-600">
           +
         </Button>
@@ -280,7 +292,15 @@ export default function OrderPage() {
                       <div className="mt-4">
                         <QuantityControl 
                           itemId={item.id} 
-                          item={{ id: item.id, name: item.name, priceCents: item.priceCents }} 
+                          item={{ 
+                            id: item.id, 
+                            name: item.name, 
+                            priceCents: item.priceCents,
+                            description: item.description,
+                            image: item.image,
+                            veg: item.veg,
+                            spicy: item.spicy
+                          }} 
                         />
                       </div>
                     </div>
@@ -346,7 +366,15 @@ export default function OrderPage() {
                           <div className="mt-4">
                             <QuantityControl 
                               itemId={item.id} 
-                              item={{ id: item.id, name: item.name, priceCents: item.priceCents }} 
+                              item={{ 
+                                id: item.id, 
+                                name: item.name, 
+                                priceCents: item.priceCents,
+                                description: item.description,
+                                image: item.image,
+                                veg: item.veg,
+                                spicy: item.spicy
+                              }} 
                             />
                           </div>
                         </div>
@@ -356,6 +384,13 @@ export default function OrderPage() {
             </section>
           ))}
       </div>
+
+      {/* Item Modal */}
+      <ItemModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        item={selectedItem}
+      />
     </div>
   );
 }

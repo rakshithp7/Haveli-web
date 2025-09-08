@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { useCartStore } from '@/store/cart';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { getItemById } from '@/data/menu';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   Sheet,
@@ -54,32 +57,73 @@ export function CartSheet() {
             </div>
           ) : (
             <ul className="divide-y divide-black/5">
-              {Object.values(lines).map((l) => (
-                <li key={l.id} className="py-3">
-                  <div className="flex justify-between">
-                    <p className="font-medium">{l.name}</p>
-                    <span className="font-medium">{formatCurrency(l.qty * l.priceCents)}</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-1">
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="h-6 w-6 rounded-full border border-gray-200 flex items-center justify-center"
-                        onClick={() => setQty(l.id, l.qty - 1)}>
-                        -
-                      </button>
-                      <span className="w-6 text-center text-sm">{l.qty}</span>
-                      <button
-                        className="h-6 w-6 rounded-full border border-gray-200 flex items-center justify-center"
-                        onClick={() => setQty(l.id, l.qty + 1)}>
-                        +
-                      </button>
+              {Object.values(lines).map((l) => {
+                const menuItem = getItemById(l.id);
+                return (
+                  <li key={l.id} className="py-4">
+                    <div className="flex gap-3">
+                      {/* Item Image */}
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                        <Image
+                          src={menuItem?.image || '/images/placeholder.svg'}
+                          alt={l.name}
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      </div>
+                      
+                      {/* Item Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{l.name}</p>
+                            {/* Badges and customizations */}
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {menuItem?.veg && <Badge className="badge-veg text-xs py-0 px-1">🌿</Badge>}
+                              {menuItem?.spicy && <Badge className="badge-spicy text-xs py-0 px-1">🌶</Badge>}
+                              {l.spiceLevel && (
+                                <Badge className="bg-orange-100 text-orange-700 text-xs py-0 px-1">
+                                  {l.spiceLevel}
+                                </Badge>
+                              )}
+                            </div>
+                            {/* Special Instructions */}
+                            {l.specialInstructions && (
+                              <p className="text-xs text-gray-600 mt-1 italic">
+                                Note: {l.specialInstructions}
+                              </p>
+                            )}
+                          </div>
+                          <span className="font-medium text-sm">{formatCurrency(l.qty * l.priceCents)}</span>
+                        </div>
+                        
+                        {/* Quantity Controls */}
+                        <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center gap-2">
+                            <button
+                              className="h-6 w-6 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50"
+                              onClick={() => setQty(l.id, l.qty - 1)}>
+                              <span className="text-xs">−</span>
+                            </button>
+                            <span className="w-6 text-center text-sm font-medium">{l.qty}</span>
+                            <button
+                              className="h-6 w-6 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50"
+                              onClick={() => setQty(l.id, l.qty + 1)}>
+                              <span className="text-xs">+</span>
+                            </button>
+                          </div>
+                          <button 
+                            className="text-xs text-red-600 hover:text-red-700"
+                            onClick={() => remove(l.id)}>
+                            Remove
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <button className="text-xs text-red-600" onClick={() => remove(l.id)}>
-                      Remove
-                    </button>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
