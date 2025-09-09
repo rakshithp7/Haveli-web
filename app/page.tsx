@@ -48,18 +48,10 @@ export default function HomePage() {
               <span className="font-medium text-[--color-brand]">Fresh, vibrant, and unforgettable.</span>
             </h2>
             <div className="mt-8 flex items-center justify-center gap-4">
-              <Button
-                asChild
-                variant="default"
-                size="lg"
-                className="transform hover:translate-y-[-2px] transition-all duration-200 text-base font-medium">
+              <Button asChild variant="default" size="lg">
                 <Link href="/menu">View Menu</Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="backdrop-blur-xl transform hover:translate-y-[-2px] transition-all duration-200 text-base font-medium">
+              <Button asChild variant="outline" size="lg">
                 <Link href="/order">Start Order</Link>
               </Button>
             </div>

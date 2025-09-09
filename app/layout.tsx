@@ -14,7 +14,6 @@ const lexendDeca = Lexend_Deca({
 export const metadata: Metadata = {
   title: 'Haveli | Indian Restaurant',
   description: 'Authentic Indian cuisine. Order pickup, explore our menu, and catering.',
-  metadataBase: new URL('https://example.com'),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -22,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={lexendDeca.variable}>
       <body className="font-lexend">
         <Navbar />
-        <main className="min-h-[70vh] pt-24">{children}</main>
+        <main className="min-h-[70vh] mt-24">{children}</main>
         <Footer />
         <Toaster />
       </body>

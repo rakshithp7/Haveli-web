@@ -26,39 +26,36 @@ export function Navbar() {
 
   // On order page, hide navbar when scrolled to give more space for menu browsing
   const shouldHideNavbar = isOrderPage && scrolled;
-  // On order page when scrolled, hide floating cart since it moves to filter bar
-  const shouldHideFloatingCart = isOrderPage && scrolled;
 
   return (
     <header
       className={cn(
         'z-30 transition-all duration-300 ease-in-out',
-        shouldHideNavbar 
-          ? 'hidden' 
-          : scrolled 
-            ? 'sticky top-0 md:top-2' 
-            : 'block absolute left-0 right-0 top-8 bg-white'
+        shouldHideNavbar
+          ? 'hidden'
+          : scrolled
+          ? 'sticky top-0 md:top-2'
+          : 'block absolute left-0 right-0 top-4 md:top-8'
       )}>
       {/* Floating Cart Icon - hidden on order page when scrolled */}
-      {!shouldHideFloatingCart && (
-        <div className="fixed top-4 right-4 z-40">
-          <div
-            className={cn(
-              'flex items-center justify-center p-2 rounded-full shadow-lg transition-all duration-300',
-              scrolled || !isHomePage
-                ? 'bg-white/90 dark:bg-black/70 text-black dark:text-white'
-                : 'bg-black/30 text-white'
-            )}>
-            <CartSheet />
-          </div>
+      <div className="absolute top-4 right-4 md:right-8 z-40">
+        <div
+          className={cn(
+            'flex items-center justify-center p-2 rounded-full border border-black/20 transition-all duration-300',
+            scrolled || !isHomePage
+              ? 'bg-white/90 dark:bg-black/70 text-black dark:text-white hover:bg-gray-200'
+              : 'bg-black/30 text-white hover:bg-white/20'
+          )}>
+          <CartSheet />
         </div>
-      )}
+      </div>
       <div
         className={cn(
           'transition duration-300 ease-in-out max-w-4xl mx-auto border border-transparent',
           scrolled
             ? 'rounded-none md:rounded-2xl shadow-lg backdrop-blur-xl border-black/10 bg-gradient-to-r from-white/90 to-white/80 supports-[backdrop-filter]:bg-white/70 dark:border-white/10 dark:from-black/40 dark:to-black/30 dark:supports-[backdrop-filter]:bg-black/20'
-            : 'border-transparent bg-transparent'
+            : 'border-transparent bg-transparent',
+          isHomePage && !scrolled && open ? 'bg-white/10 backdrop-blur-xl' : ''
         )}>
         <div className={cn('container-responsive grid h-16 items-center', 'grid-cols-3 md:grid-cols-[auto_auto_auto]')}>
           {/* Left region (desktop): Menu, Contact always on left */}
@@ -67,7 +64,8 @@ export function Navbar() {
               href="/menu"
               className={cn(
                 'nav-link transition-colors',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]'
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]',
+                pathname === '/menu' && 'active'
               )}>
               Menu
             </Link>
@@ -75,7 +73,8 @@ export function Navbar() {
               href="/contact"
               className={cn(
                 'nav-link transition-colors',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]'
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]',
+                pathname === '/contact' && 'active'
               )}>
               Contact
             </Link>
@@ -107,7 +106,10 @@ export function Navbar() {
                 aria-label="Toggle menu"
                 aria-expanded={open}
                 onClick={() => setOpen((v) => !v)}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-black/20 hover:bg-black/30 text-white">
+                className={cn(
+                  'inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/10  text-white',
+                  isHomePage && !scrolled ? 'bg-transparent' : 'bg-amber-500/70 hover:bg-amber-500/90'
+                )}>
                 {open ? (
                   // Close icon
                   <svg
@@ -139,18 +141,20 @@ export function Navbar() {
                   </svg>
                 )}
               </button>
-              
+
               {/* Current page name */}
-              <span className={cn(
-                'text-sm font-medium',
-                isHomePage && !scrolled ? 'text-white' : 'text-gray-700'
-              )}>
-                {pathname === '/menu' ? 'Menu' :
-                 pathname === '/contact' ? 'Contact' :
-                 pathname === '/catering' ? 'Catering' :
-                 pathname === '/order' ? 'Order' :
-                 pathname === '/order/confirm' ? 'Checkout' :
-                 'Home'}
+              <span className={cn('text-sm font-medium', isHomePage && !scrolled ? 'text-white' : 'text-gray-700')}>
+                {pathname === '/menu'
+                  ? 'Menu'
+                  : pathname === '/contact'
+                  ? 'Contact'
+                  : pathname === '/catering'
+                  ? 'Catering'
+                  : pathname === '/order'
+                  ? 'Order'
+                  : pathname === '/order/confirm'
+                  ? 'Checkout'
+                  : 'Home'}
               </span>
             </div>
           </div>
@@ -161,7 +165,8 @@ export function Navbar() {
               href="/catering"
               className={cn(
                 'nav-link transition-colors',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]'
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]',
+                pathname === '/catering' && 'active'
               )}>
               Catering
             </Link>
@@ -169,13 +174,14 @@ export function Navbar() {
               href="/order"
               className={cn(
                 'nav-link transition-colors',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]'
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]',
+                pathname === '/order' && 'active'
               )}>
               Order
             </Link>
           </nav>
 
-          {/* Mobile left: Logo */}
+          {/* Mobile Haveli Logo */}
           <div className="flex items-center md:hidden justify-self-start ml-14">
             <AnimatePresence initial={false}>
               {(scrolled || !isHomePage) && (
@@ -196,51 +202,41 @@ export function Navbar() {
           </div>
 
           {/* Mobile right: Empty space for balance */}
-          <div className="flex items-center md:hidden justify-self-end mr-4">
-            {/* Empty for balance */}
-          </div>
+          <div className="flex items-center md:hidden justify-self-end mr-4">{/* Empty for balance */}</div>
         </div>
 
         {/* Mobile menu panel */}
         <div
           className={cn(
-            'md:hidden overflow-hidden transition-[max-height,opacity] duration-300',
-            open ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
+            'md:hidden overflow-hidden transition-[max-height,opacity] duration-300 z-100 shadow-md',
+            open ? 'max-h-64 opacity-100 backdrop-blur-md' : 'max-h-0 opacity-0'
           )}>
-          <div className="flex flex-col gap-2 py-2 text-sm">
+          <div
+            className={cn(
+              'flex flex-col gap-2 py-2 text-sm ',
+              isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'bg-white'
+            )}>
             <Link
               href="/menu"
-              className={cn(
-                'rounded-md px-2 py-2 hover:bg-black/5',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : ''
-              )}
+              className={cn('rounded-md px-2 py-2 hover:bg-black/5 nav-link', pathname === '/menu' && 'active')}
               onClick={() => setOpen(false)}>
               Menu
             </Link>
             <Link
               href="/order"
-              className={cn(
-                'rounded-md px-2 py-2 hover:bg-black/5',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : ''
-              )}
+              className={cn('rounded-md px-2 py-2 hover:bg-black/5 nav-link', pathname === '/order' && 'active')}
               onClick={() => setOpen(false)}>
               Order
             </Link>
             <Link
               href="/catering"
-              className={cn(
-                'rounded-md px-2 py-2 hover:bg-black/5',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : ''
-              )}
+              className={cn('rounded-md px-2 py-2 hover:bg-black/5 nav-link', pathname === '/catering' && 'active')}
               onClick={() => setOpen(false)}>
               Catering
             </Link>
             <Link
               href="/contact"
-              className={cn(
-                'rounded-md px-2 py-2 hover:bg-black/5',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : ''
-              )}
+              className={cn('rounded-md px-2 py-2 hover:bg-black/5 nav-link', pathname === '/contact' && 'active')}
               onClick={() => setOpen(false)}>
               Contact
             </Link>

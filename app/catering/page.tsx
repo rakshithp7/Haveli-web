@@ -40,7 +40,7 @@ export default function CateringPage() {
   }
 
   return (
-    <div className="container-responsive py-6 px-4">
+    <div className="container-responsive py-6 mx-8">
       <h1 className="mb-4 text-xl font-semibold">Catering</h1>
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">

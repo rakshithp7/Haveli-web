@@ -82,6 +82,11 @@ body {
   }
 
   .nav-link:hover::after {
-    @apply w-full;
+    @apply w-1/5 md:w-full;
+  }
+
+  /* Keep underline visible for active navigation links */
+  .nav-link.active::after {
+    @apply w-1/5 md:w-full;
   }
 }

@@ -1,37 +1,12 @@
 'use client';
-import Image from 'next/image';
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { categories, getMenuByCategory } from '@/data/menu';
-import { formatCurrency } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect, useRef } from 'react';
+import { categories, getMenuByCategory, MenuItem } from '@/data/menu';
 import { TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
-import { useCartStore } from '@/store/cart';
 import { useUIStore } from '@/store/ui';
-import { toast } from '@/components/ui/use-toast';
 import { CartSheet } from '@/components/cart-sheet';
 import { ItemModal } from '@/components/item-modal';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import { env } from '@/lib/env';
-import { useRouter } from 'next/navigation';
-
-const stripePromise = env.stripe.pk ? loadStripe(env.stripe.pk) : null;
-
-const schema = z.object({
-  name: z.string().min(2),
-  phone: z.string().min(7),
-  tipPercent: z.enum(['0', '10', '15', '20']).default('0'),
-  pickup: z.enum(['ASAP', '+15', '+30']).default('ASAP'),
-  notes: z.string().max(300).optional(),
-});
-type Values = z.infer<typeof schema>;
+import { MenuItemCard } from '@/components/menu-item-card';
 
 export default function OrderPage() {
   // Function to get icon based on category
@@ -84,13 +59,8 @@ export default function OrderPage() {
 
   const [active, setActive] = useState(categories[0]);
   const [searchQuery, setSearchQuery] = useState('');
-  const add = useCartStore((s) => s.add);
-  const lines = useCartStore((s) => s.lines);
-  const remove = useCartStore((s) => s.remove);
-  const setQty = useCartStore((s) => s.setQty);
-  const clear = useCartStore((s) => s.clear);
   const scrolled = useUIStore((s) => s.navScrolled);
-  
+
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{
@@ -103,62 +73,14 @@ export default function OrderPage() {
     spicy?: boolean;
   } | null>(null);
 
-  const openItemModal = (item: any) => {
+  const openItemModal = (item: MenuItem) => {
     setSelectedItem(item);
     setModalOpen(true);
   };
 
-  // Quantity control component
-  const QuantityControl = ({ itemId, item }: { itemId: string; item: { id: string; name: string; priceCents: number; description: string; image: string; veg?: boolean; spicy?: boolean } }) => {
-    const currentQty = lines[itemId]?.qty || 0;
-
-    if (currentQty === 0) {
-      return (
-        <Button
-          onClick={() => openItemModal(item)}
-          className="w-full">
-          Add
-        </Button>
-      );
-    }
-
-    return (
-      <div className="flex items-center justify-between bg-gray-50 rounded-lg p-1 w-full">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            if (currentQty === 1) {
-              remove(itemId);
-              toast.success(`${item.name} removed from cart`);
-            } else {
-              setQty(itemId, currentQty - 1);
-            }
-          }}
-          className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600">
-          −
-        </Button>
-        <span className="px-3 py-1 bg-white rounded font-medium min-w-[2rem] text-center">
-          {currentQty}
-        </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => openItemModal(item)}
-          className="h-8 w-8 p-0 hover:bg-green-100 hover:text-green-600">
-          +
-        </Button>
-      </div>
-    );
-  };
+  // We've moved the QuantityControl component to MenuItemCard
   const [loading, setLoading] = useState(true);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
-
-  const subtotal = useMemo(() => Object.values(lines).reduce((a, l) => a + l.priceCents * l.qty, 0), [lines]);
-  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { tipPercent: '0', pickup: 'ASAP' } });
-  const tipPercent = Number(form.watch('tipPercent'));
-  const tipCents = Math.round((subtotal * tipPercent) / 100);
-  const totalCents = subtotal + tipCents;
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 400);
@@ -213,7 +135,7 @@ export default function OrderPage() {
   return (
     <div className="relative pb-4">
       {/* Fixed tabs section - higher z-index and positioned to be above navbar */}
-      <div className="sticky top-0 z-40 bg-white shadow-sm py-4 border-b border-gray-100">
+      <div className="sticky top-0 z-10 bg-white shadow-sm py-4">
         <div className="container mx-auto px-4 flex flex-wrap items-center justify-between gap-4 relative">
           <div className="overflow-x-auto flex-grow md:flex-grow-0 md:max-w-[75%] flex flex-row flex-nowrap items-center">
             {categories.map((c) => (
@@ -239,10 +161,10 @@ export default function OrderPage() {
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
           </div>
-          
+
           {/* Cart icon in filter bar when scrolled - positioned at far right */}
           {scrolled && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 translate-x-22 flex items-center justify-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors shadow-md">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 translate-x-22 flex items-center justify-center p-2 rounded-full bg-white/90 hover:bg-gray-200 transition-colors border border-black/20">
               <CartSheet />
             </div>
           )}
@@ -268,44 +190,7 @@ export default function OrderPage() {
                   </div>
                 ))
               ) : filteredItems.length > 0 ? (
-                filteredItems.map((item) => (
-                  <div key={item.id} className="card overflow-hidden">
-                    <div className="relative aspect-[4/3]">
-                      <Image 
-                        src={item.image} 
-                        alt={item.name} 
-                        fill 
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-medium">{item.name}</h3>
-                        <span className="text-[--color-brand] font-semibold">{formatCurrency(item.priceCents)}</span>
-                      </div>
-                      <p className="mt-1 line-clamp-2 text-sm text-muted">{item.description}</p>
-                      <div className="mt-2 flex gap-2">
-                        {item.veg && <Badge className="badge-veg">🌿 Veg</Badge>}
-                        {item.spicy && <Badge className="badge-spicy">🌶 Spicy</Badge>}
-                      </div>
-                      <div className="mt-4">
-                        <QuantityControl 
-                          itemId={item.id} 
-                          item={{ 
-                            id: item.id, 
-                            name: item.name, 
-                            priceCents: item.priceCents,
-                            description: item.description,
-                            image: item.image,
-                            veg: item.veg,
-                            spicy: item.spicy
-                          }} 
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))
+                filteredItems.map((item) => <MenuItemCard key={item.id} item={item} onOpenModal={openItemModal} />)
               ) : (
                 <div className="col-span-full text-center py-8">
                   <p className="text-lg text-muted">No items found matching &ldquo;{searchQuery}&rdquo;</p>
@@ -341,44 +226,7 @@ export default function OrderPage() {
                       </div>
                     ))
                   : getMenuByCategory(category).map((item) => (
-                      <div key={item.id} className="card overflow-hidden">
-                        <div className="relative aspect-[4/3]">
-                          <Image 
-                        src={item.image} 
-                        alt={item.name} 
-                        fill 
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                        </div>
-                        <div className="p-4">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-medium">{item.name}</h3>
-                            <span className="text-[--color-brand] font-semibold">
-                              {formatCurrency(item.priceCents)}
-                            </span>
-                          </div>
-                          <p className="mt-1 line-clamp-2 text-sm text-muted">{item.description}</p>
-                          <div className="mt-2 flex gap-2">
-                            {item.veg && <Badge className="badge-veg">🌿 Veg</Badge>}
-                            {item.spicy && <Badge className="badge-spicy">🌶 Spicy</Badge>}
-                          </div>
-                          <div className="mt-4">
-                            <QuantityControl 
-                              itemId={item.id} 
-                              item={{ 
-                                id: item.id, 
-                                name: item.name, 
-                                priceCents: item.priceCents,
-                                description: item.description,
-                                image: item.image,
-                                veg: item.veg,
-                                spicy: item.spicy
-                              }} 
-                            />
-                          </div>
-                        </div>
-                      </div>
+                      <MenuItemCard key={item.id} item={item} onOpenModal={openItemModal} />
                     ))}
               </div>
             </section>
@@ -386,72 +234,7 @@ export default function OrderPage() {
       </div>
 
       {/* Item Modal */}
-      <ItemModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        item={selectedItem}
-      />
-    </div>
-  );
-}
-
-function CheckoutBox({
-  totalCents,
-  clearCart,
-  lines,
-  formValues,
-}: {
-  totalCents: number;
-  clearCart: () => void;
-  lines: ReturnType<typeof useCartStore.getState>['lines'];
-  formValues: ReturnType<typeof useForm<Values>>;
-}) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const router = useRouter();
-  const [submitting, setSubmitting] = useState(false);
-
-  async function onSubmit() {
-    if (!stripe || !elements) return;
-    const values = formValues.getValues();
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lines: Object.values(lines).map((l) => ({ id: l.id, qty: l.qty })),
-          tipPercent: Number(values.tipPercent),
-          contact: { name: values.name, phone: values.phone },
-          notes: values.notes,
-        }),
-      });
-      if (!res.ok) throw new Error('Failed to create payment intent');
-      const data = await res.json();
-      const { clientSecret, orderId } = data;
-      const result = await stripe.confirmPayment({
-        elements,
-        clientSecret,
-        confirmParams: { return_url: window.location.origin + '/order/confirm?orderId=' + orderId },
-        redirect: 'if_required',
-      });
-      if (result.error) throw result.error;
-      clearCart();
-      router.push(`/order/confirm?orderId=${orderId}`);
-    } catch (e) {
-      console.error(e);
-      alert('Payment failed. Please check details and try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <div>
-      <PaymentElement />
-      <Button onClick={onSubmit} disabled={submitting} className="w-full mt-3">
-        {submitting ? 'Processing…' : `Pay ${formatCurrency(totalCents)}`}
-      </Button>
+      <ItemModal isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selectedItem} />
     </div>
   );
 }
