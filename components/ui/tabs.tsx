@@ -46,9 +46,7 @@ export function TabsTrigger({
       onClick={() => onClick(value)}
       className={cn(
         'whitespace-nowrap rounded-full border px-3 py-1 text-sm flex items-center',
-        active
-          ? 'border-[--color-brand] bg-[--color-brand]/10 text-[--color-brand]'
-          : 'border-black/10 bg-white hover:bg-black/5',
+        active ? 'border-brand bg-brand/10 text-brand' : 'border-black/10 bg-white hover:bg-black/5',
         className
       )}>
       {children || value}

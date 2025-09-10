@@ -46,13 +46,11 @@ export default function CateringPage() {
         <div className="lg:col-span-2 space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {cateringPackages.map((p) => (
-              <Card key={p.id}>
+              <Card key={p.id} className="border border-black/20 rounded-md ">
                 <CardHeader>
                   <div className="flex items-baseline justify-between">
                     <h3 className="font-medium">{p.name}</h3>
-                    <span className="text-[--color-brand] font-semibold">
-                      {formatCurrency(p.pricePerPersonCents)} pp
-                    </span>
+                    <span className="text-brand font-semibold">{formatCurrency(p.pricePerPersonCents)} pp</span>
                   </div>
                   <p className="text-sm text-muted">Min {p.minGuests} guests</p>
                 </CardHeader>

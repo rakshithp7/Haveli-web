@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { categories, getMenuByCategory, MenuItem } from '@/data/menu';
 import { TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { useUIStore } from '@/store/ui';
 import { CartSheet } from '@/components/cart-sheet';
 import { ItemModal } from '@/components/item-modal';
@@ -59,6 +60,7 @@ export default function OrderPage() {
 
   const [active, setActive] = useState(categories[0]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showOnlyVeg, setShowOnlyVeg] = useState(false);
   const scrolled = useUIStore((s) => s.navScrolled);
 
   // Modal state
@@ -121,13 +123,14 @@ export default function OrderPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [active, loading]);
 
-  // Filter all items based on search query
+  // Filter items based on search query and veg filter
   const filteredItems = searchQuery
     ? categories.flatMap((category) =>
         getMenuByCategory(category).filter(
           (item) =>
-            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.description.toLowerCase().includes(searchQuery.toLowerCase())
+            (!showOnlyVeg || item.veg === true) && // Show all items when filter is off, only veg items when on
+            (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              item.description.toLowerCase().includes(searchQuery.toLowerCase()))
         )
       )
     : [];
@@ -135,9 +138,9 @@ export default function OrderPage() {
   return (
     <div className="relative pb-4">
       {/* Fixed tabs section - higher z-index and positioned to be above navbar */}
-      <div className="sticky top-0 z-10 bg-white shadow-sm py-4">
-        <div className="container mx-auto px-4 flex flex-wrap items-center justify-between gap-4 relative">
-          <div className="overflow-x-auto flex-grow md:flex-grow-0 md:max-w-[75%] flex flex-row flex-nowrap items-center">
+      <div className="bg-white sticky top-0 z-10 shadow-sm py-4">
+        <div className="relative container mx-auto px-4 flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
+          <div className="thin-scrollbar flex-grow flex flex-row items-center">
             {categories.map((c) => (
               <TabsTrigger
                 key={c}
@@ -151,20 +154,21 @@ export default function OrderPage() {
             ))}
           </div>
 
-          <div className="relative w-full md:w-auto max-w-[220px] shrink-0">
-            <Input
-              type="text"
-              placeholder="Search menu..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pr-10"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+          <div className="flex items-center gap-4 w-full md:max-w-[200px] shrink-0">
+            <div className="relative flex-1">
+              <Input
+                type="text"
+                placeholder="Search menu..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+            </div>
           </div>
 
           {/* Cart icon in filter bar when scrolled - positioned at far right */}
           {scrolled && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 translate-x-22 flex items-center justify-center p-2 rounded-full bg-white/90 hover:bg-gray-200 transition-colors border border-black/20">
+            <div className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 translate-x-22  items-center justify-center p-2 rounded-full bg-white/90 hover:bg-gray-200 transition-colors border border-black/20">
               <CartSheet />
             </div>
           )}
@@ -173,6 +177,17 @@ export default function OrderPage() {
 
       {/* Content container */}
       <div className="container mx-auto px-4 mt-4">
+        <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2">
+            <Switch checked={showOnlyVeg} onCheckedChange={setShowOnlyVeg} id="veg-filter" />
+            <label htmlFor="veg-filter" className="text-sm font-medium cursor-pointer flex items-center">
+              <span role="img" aria-label="Vegetarian" className="mr-1">
+                🌿
+              </span>
+              Veg only
+            </label>
+          </div>
+        </div>
         {/* Show search results if there's a search query */}
         {searchQuery && (
           <section className="py-6 mx-auto">
@@ -205,7 +220,7 @@ export default function OrderPage() {
           categories.map((category) => (
             <section
               key={category}
-              className="py-8 mx-auto scroll-m-36"
+              className="py-6 mx-auto scroll-m-36"
               ref={(el) => {
                 sectionRefs.current[category] = el;
               }}>
@@ -225,9 +240,9 @@ export default function OrderPage() {
                         </div>
                       </div>
                     ))
-                  : getMenuByCategory(category).map((item) => (
-                      <MenuItemCard key={item.id} item={item} onOpenModal={openItemModal} />
-                    ))}
+                  : getMenuByCategory(category)
+                      .filter((item) => !showOnlyVeg || item.veg === true)
+                      .map((item) => <MenuItemCard key={item.id} item={item} onOpenModal={openItemModal} />)}
               </div>
             </section>
           ))}

@@ -40,7 +40,7 @@ export default function ContactPage() {
         <h1 className="mb-3 text-xl font-semibold">Contact Us</h1>
         <p className="text-sm text-muted">12908 N Dale Mabry Hwy, Tampa, FL 33618</p>
         <div className="mt-3 flex gap-3 text-sm">
-          <Link href="tel:+15551234567" className="text-[--color-brand]">
+          <Link href="tel:+15551234567" className="text-brand">
             Call (813) 488-6294
           </Link>
         </div>

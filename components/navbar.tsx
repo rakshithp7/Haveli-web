@@ -30,41 +30,29 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        'z-30 transition-all duration-300 ease-in-out',
+        'z-30 transition-all duration-200 ease-in-out',
         shouldHideNavbar
           ? 'hidden'
           : scrolled
           ? 'sticky top-0 md:top-2'
           : 'block absolute left-0 right-0 top-4 md:top-8'
       )}>
-      {/* Floating Cart Icon - hidden on order page when scrolled */}
-      <div className="absolute top-4 right-4 md:right-8 z-40">
-        <div
-          className={cn(
-            'flex items-center justify-center p-2 rounded-full border border-black/20 transition-all duration-300',
-            scrolled || !isHomePage
-              ? 'bg-white/90 dark:bg-black/70 text-black dark:text-white hover:bg-gray-200'
-              : 'bg-black/30 text-white hover:bg-white/20'
-          )}>
-          <CartSheet />
-        </div>
-      </div>
       <div
         className={cn(
-          'transition duration-300 ease-in-out max-w-4xl mx-auto border border-transparent',
+          'transition duration-200 ease-in-out max-w-5xl mx-auto border',
           scrolled
-            ? 'rounded-none md:rounded-2xl shadow-lg backdrop-blur-xl border-black/10 bg-gradient-to-r from-white/90 to-white/80 supports-[backdrop-filter]:bg-white/70 dark:border-white/10 dark:from-black/40 dark:to-black/30 dark:supports-[backdrop-filter]:bg-black/20'
+            ? 'rounded-none md:rounded-2xl shadow-md md:shadow-lg backdrop-blur-xl border-black/10 bg-gradient-to-r from-white/90 to-white/80'
             : 'border-transparent bg-transparent',
           isHomePage && !scrolled && open ? 'bg-white/10 backdrop-blur-xl' : ''
         )}>
-        <div className={cn('container-responsive grid h-16 items-center', 'grid-cols-3 md:grid-cols-[auto_auto_auto]')}>
+        <div className="container-responsive h-16 items-center grid grid-cols-3">
           {/* Left region (desktop): Menu, Contact always on left */}
           <nav className={cn('hidden items-center justify-self-end text-lg md:flex gap-24')}>
             <Link
               href="/menu"
               className={cn(
                 'nav-link transition-colors',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-brand',
                 pathname === '/menu' && 'active'
               )}>
               Menu
@@ -73,7 +61,7 @@ export function Navbar() {
               href="/contact"
               className={cn(
                 'nav-link transition-colors',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-brand',
                 pathname === '/contact' && 'active'
               )}>
               Contact
@@ -165,7 +153,7 @@ export function Navbar() {
               href="/catering"
               className={cn(
                 'nav-link transition-colors',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-brand',
                 pathname === '/catering' && 'active'
               )}>
               Catering
@@ -174,7 +162,7 @@ export function Navbar() {
               href="/order"
               className={cn(
                 'nav-link transition-colors',
-                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-[--color-brand]',
+                isHomePage && !scrolled ? 'text-white hover:text-white/80' : 'hover:text-brand',
                 pathname === '/order' && 'active'
               )}>
               Order
@@ -241,6 +229,19 @@ export function Navbar() {
               Contact
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Floating Cart Icon - hidden on order page when scrolled */}
+      <div className="absolute top-4 right-4 md:right-8 z-40">
+        <div
+          className={cn(
+            'flex items-center justify-center p-2 rounded-full border border-black/20 transition-all duration-300',
+            scrolled || !isHomePage
+              ? 'bg-white/90 dark:bg-black/70 text-black dark:text-white hover:bg-gray-200'
+              : 'bg-black/30 text-white hover:bg-white/20'
+          )}>
+          <CartSheet />
         </div>
       </div>
     </header>

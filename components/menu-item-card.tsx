@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { useCartStore } from '@/store/cart';
 import { toast } from '@/components/ui/use-toast';
@@ -13,11 +14,11 @@ interface MenuItemCardProps {
 }
 
 export function MenuItemCard({ item, onOpenModal }: MenuItemCardProps) {
-  const { lines, remove, setQty } = useCartStore();
+  const { remove, setQty, getItemQuantity, findCartItemsByBaseId } = useCartStore();
 
   // Quantity control sub-component
   const QuantityControl = () => {
-    const currentQty = lines[item.id]?.qty || 0;
+    const currentQty = getItemQuantity(item.id);
 
     if (currentQty === 0) {
       return (
@@ -33,22 +34,33 @@ export function MenuItemCard({ item, onOpenModal }: MenuItemCardProps) {
           variant="ghost"
           size="sm"
           onClick={() => {
-            if (currentQty === 1) {
-              remove(item.id);
+            // Get all variations of this item in the cart
+            const cartItems = findCartItemsByBaseId(item.id);
+
+            if (cartItems.length === 0) {
+              // This shouldn't happen, but handle it gracefully
+              return;
+            }
+
+            // If only one item or one variation left, remove it
+            if (currentQty === 1 || (cartItems.length === 1 && cartItems[0].qty === 1)) {
+              remove(cartItems[0].cartId);
               toast.success(`${item.name} removed from cart`);
             } else {
-              setQty(item.id, currentQty - 1);
+              // Multiple items, just decrease the first one we find
+              // This is a simplified approach - ideally you'd open the modal to select which variation to decrease
+              setQty(cartItems[0].cartId, cartItems[0].qty - 1);
             }
           }}
-          className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600">
+          className="h-8 w-10 p-0 hover:bg-red-100 hover:text-red-600">
           −
         </Button>
-        <span className="px-3 py-1 bg-white rounded font-medium min-w-[2rem] text-center">{currentQty}</span>
+        <span className="px-8 py-1 bg-white rounded font-medium min-w-[2rem] text-center">{currentQty}</span>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => onOpenModal(item)}
-          className="h-8 w-8 p-0 hover:bg-green-100 hover:text-green-600">
+          className="h-8 w-10 p-0 hover:bg-green-100 hover:text-green-600">
           +
         </Button>
       </div>
@@ -56,20 +68,14 @@ export function MenuItemCard({ item, onOpenModal }: MenuItemCardProps) {
   };
 
   return (
-    <div className="card overflow-hidden">
+    <Card className="overflow-hidden border border-black/10 rounded-xl">
       <div className="relative aspect-[4/3]">
-        <Image
-          src={item.image}
-          alt={item.name}
-          fill
-          className="object-cover"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
+        <Image src={item.image} alt={item.name} fill className="object-cover" />
       </div>
-      <div className="p-4">
+      <CardContent className="p-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-medium">{item.name}</h3>
-          <span className="text-[--color-brand] font-semibold">{formatCurrency(item.priceCents)}</span>
+          <h3 className="font-medium text-lg">{item.name}</h3>
+          <span className="text-brand font-semibold">{formatCurrency(item.priceCents)}</span>
         </div>
         <p className="mt-1 line-clamp-2 text-sm text-muted">{item.description}</p>
         <div className="mt-2 flex gap-2">
@@ -79,7 +85,7 @@ export function MenuItemCard({ item, onOpenModal }: MenuItemCardProps) {
         <div className="mt-4">
           <QuantityControl />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -6,6 +6,7 @@ import { testimonials } from '@/data/testimonials';
 import { useUIStore } from '@/store/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OpenStatusBadge } from '@/components/open-status-badge';
+import GradientText from '@/components/ui/GradientText';
 
 export default function HomePage() {
   const { navScrolled: scrolled } = useUIStore();
@@ -24,28 +25,51 @@ export default function HomePage() {
         <div className="container-responsive relative z-10 grid place-items-center py-16 sm:py-24 text-center">
           <div className="max-w-2xl">
             <h1 className="sr-only">Haveli — Authentic Indian Cuisine</h1>
-            <AnimatePresence mode="wait" initial={false}>
-              {!scrolled && (
-                <Link href="/">
-                  <motion.img
-                    key="hero-logo"
-                    layoutId="haveli-logo"
-                    src="/logo.webp"
-                    alt="Haveli"
-                    width={240}
-                    height={72}
-                    className="mx-auto h-auto w-[240px] md:w-[400px] xl:w-[500px] cursor-pointer hover:opacity-90 transition-opacity duration-200"
-                    transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.6 }}
-                  />
-                </Link>
-              )}
-            </AnimatePresence>
-            <p className="mt-6 inline-block rounded-full bg-[--color-brand]/10 px-4 py-1.5 text-[--color-brand] text-lg font-medium tracking-wide">
+            {/* Logo container with fixed dimensions to reserve space */}
+            <div className="h-[140px] w-[240px] md:h-[240px] md:w-[400px] xl:h-[300px] xl:w-[500px] mx-auto">
+              <AnimatePresence mode="wait" initial={false}>
+                {!scrolled && (
+                  <Link href="/">
+                    <motion.img
+                      key="hero-logo"
+                      layoutId="haveli-logo"
+                      src="/logo.webp"
+                      alt="Haveli"
+                      width={240}
+                      height={72}
+                      className="mx-auto h-auto w-[240px] md:w-[400px] xl:w-[500px] cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                      transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.6 }}
+                    />
+                  </Link>
+                )}
+              </AnimatePresence>
+            </div>
+            <p className="mt-6 inline-block rounded-full bg-brand/10 px-4 py-1.5 text-brand text-lg font-medium tracking-wide">
               Authentic Indian Cuisine
             </p>
             <h2 className="mt-5 text-2xl md:text-3xl lg:text-4xl font-light tracking-wide leading-relaxed">
-              From our tandoor to your table. <br />
-              <span className="font-medium text-[--color-brand]">Fresh, vibrant, and unforgettable.</span>
+              From our <i>tandoor</i> to your <i>table</i>. <br />
+              {/* <SplitText
+                text="Fresh, vibrant, and unforgettable."
+                delay={100}
+                className="font-medium text-brand"
+                duration={0.8}
+                splitType="chars"
+                from={{ opacity: 0, y: 40 }}
+                to={{ opacity: 1, y: 0 }}
+                tag="span"
+                ease="power3.out"
+                onLetterAnimationComplete={() => console.log('Letter animation complete')}
+              /> */}
+              {/* <ShinyText
+                text="Fresh, vibrant, and unforgettable."
+                disabled={false}
+                speed={3}
+                className="font-medium text-brand"
+              /> */}
+              <GradientText colors={['#f59e0b', '#b45309', '#f59e0b']} animationSpeed={10} showBorder={false}>
+                Fresh, vibrant, and unforgettable.
+              </GradientText>
             </h2>
             <div className="mt-8 flex items-center justify-center gap-4">
               <Button asChild variant="default" size="lg">
@@ -63,7 +87,7 @@ export default function HomePage() {
       {/* <section className="container-responsive py-10">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold">Featured</h2>
-          <Link href="/menu" className="text-sm text-[--color-brand]">
+          <Link href="/menu" className="text-sm text-brand">
             See full menu →
           </Link>
         </div>
@@ -76,7 +100,7 @@ export default function HomePage() {
               <CardContent>
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium">{item.name}</h3>
-                  <span className="text-[--color-brand] font-semibold">{formatCurrency(item.priceCents)}</span>
+                  <span className="text-brand font-semibold">{formatCurrency(item.priceCents)}</span>
                 </div>
                 <p className="mt-1 line-clamp-2 text-sm text-muted">{item.description}</p>
                 <div className="mt-2 flex gap-2">
@@ -141,16 +165,14 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-gradient-to-b from-black/30 to-black/20 px-4">
+      <section className="py-20 bg-gradient-to-b from-black/10 to-black/20 px-4">
         <div className="container-responsive max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-sm tracking-wider text-[--color-brand] uppercase font-semibold">
-              Customer Experiences
-            </span>
+            <span className="text-sm tracking-wider text-brand uppercase font-semibold">Customer Experiences</span>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold mt-2">
-              What Our <span className="text-[--color-brand]">Guests</span> Say
+              What Our <span className="text-brand">Guests</span> Say
             </h2>
-            <div className="mt-2 w-24 h-1 bg-[--color-brand]/70 mx-auto rounded-full"></div>
+            <div className="mt-2 w-24 h-1 bg-brand/70 mx-auto rounded-full"></div>
           </div>
           <div className="grid grid-cols-1 gap-8 md:gap-10 sm:grid-cols-2 lg:grid-cols-3">
             {testimonials.map((t, i) => (
@@ -173,7 +195,7 @@ export default function HomePage() {
                   </div>
 
                   {/* Quote mark */}
-                  <div className="absolute top-4 right-6 text-5xl text-[--color-brand]/10 group-hover:text-[--color-brand]/15 transition-colors duration-300">
+                  <div className="absolute top-4 right-6 text-5xl text-brand/10 group-hover:text-brand/15 transition-colors duration-300">
                     &ldquo;
                   </div>
 
@@ -184,7 +206,7 @@ export default function HomePage() {
                     {/* Reviewer info */}
                     <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-[--color-brand]/20 grid place-items-center text-[--color-brand] font-medium">
+                        <div className="h-10 w-10 rounded-full bg-brand/20 grid place-items-center text-brand font-medium">
                           {t.name.charAt(0)}
                         </div>
                         <div className="ml-3">
@@ -202,9 +224,7 @@ export default function HomePage() {
 
           {/* View more button */}
           <div className="flex justify-center mt-10">
-            <Button
-              variant="outline"
-              className="border-[--color-brand] text-[--color-brand] hover:bg-[--color-brand]/5 px-6">
+            <Button variant="outline" className="border-brand text-brand hover:bg-brand/5 px-6">
               Read All Reviews
             </Button>
           </div>

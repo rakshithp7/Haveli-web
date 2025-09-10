@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": [],
     "module": "ESNext",
     "moduleResolution": "Bundler",
@@ -20,21 +16,11 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "@/components/*": [
-        "components/*"
-      ],
-      "@/app/*": [
-        "app/*"
-      ],
-      "@/data/*": [
-        "data/*"
-      ],
-      "@/lib/*": [
-        "lib/*"
-      ],
-      "@/store/*": [
-        "store/*"
-      ]
+      "@/components/*": ["components/*"],
+      "@/app/*": ["app/*"],
+      "@/data/*": ["data/*"],
+      "@/lib/*": ["lib/*"],
+      "@/store/*": ["store/*"]
     },
     "allowJs": true,
     "plugins": [
@@ -43,15 +29,6 @@
       }
     ]
   },
-  "include": [
-    "**/*.cjs",
-    "**/*.mjs",
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.cjs", "**/*.mjs", "**/*.ts", "**/*.tsx", "next-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

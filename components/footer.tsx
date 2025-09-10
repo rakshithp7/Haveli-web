@@ -25,12 +25,12 @@ export function Footer() {
             <h3 className="mb-4 font-bold text-foreground">Contact</h3>
             <address className="not-italic text-muted-foreground">
               <p className="mb-2 flex items-center gap-2">
-                <MapPin size={16} className="text-[--color-brand]" />
+                <MapPin size={16} className="text-brand" />
                 12908 N Dale Mabry Hwy
               </p>
               <p className="mb-2 ml-6">Tampa, FL 33618</p>
               <p className="mb-2 flex items-center gap-2">
-                <Phone size={16} className="text-[--color-brand]" />
+                <Phone size={16} className="text-brand" />
                 (813) 488-6294
               </p>
             </address>

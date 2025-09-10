@@ -39,17 +39,17 @@ export function ItemModal({ isOpen, onClose, item }: ItemModalProps) {
   const handleAddToCart = () => {
     // Add item to cart with selected quantity, spice level, and special instructions
     add(
-      { id: item.id, name: item.name, priceCents: item.priceCents }, 
-      quantity, 
-      spiceLevel || undefined, 
+      { id: item.id, name: item.name, priceCents: item.priceCents },
+      quantity,
+      spiceLevel || undefined,
       specialInstructions || undefined
     );
-    
+
     // Show success toast
     const spiceText = spiceLevel ? ` (${spiceLevel} spice)` : '';
     const instructionsText = specialInstructions ? ' with special instructions' : '';
     toast.success(`${quantity}x ${item.name}${spiceText}${instructionsText} added to cart`);
-    
+
     // Reset modal state and close
     setQuantity(1);
     setSpiceLevel(null);
@@ -57,8 +57,8 @@ export function ItemModal({ isOpen, onClose, item }: ItemModalProps) {
     onClose();
   };
 
-  const incrementQuantity = () => setQuantity(prev => prev + 1);
-  const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
+  const incrementQuantity = () => setQuantity((prev) => prev + 1);
+  const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
   const spiceLevels: { value: SpiceLevel; label: string; emoji: string }[] = [
     { value: 'mild', label: 'Mild', emoji: '🌶️' },
@@ -72,11 +72,8 @@ export function ItemModal({ isOpen, onClose, item }: ItemModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 pb-8">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
       {/* Modal */}
       <div className="relative w-full max-w-md bg-white rounded-lg shadow-xl max-h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
         {/* Image - Top portion */}
@@ -95,9 +92,7 @@ export function ItemModal({ isOpen, onClose, item }: ItemModalProps) {
           {/* Header */}
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">{item.name}</h2>
-            <span className="text-lg text-amber-500 font-bold">
-              {formatCurrency(item.priceCents)}
-            </span>
+            <span className="text-lg text-amber-500 font-bold">{formatCurrency(item.priceCents)}</span>
           </div>
 
           {/* Badges */}
@@ -113,21 +108,11 @@ export function ItemModal({ isOpen, onClose, item }: ItemModalProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium">Quantity</label>
             <div className="flex items-center justify-center bg-gray-50 rounded-lg p-2 w-32">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={decrementQuantity}
-                className="h-8 w-8 p-0 hover:bg-gray-200">
+              <Button variant="ghost" size="sm" onClick={decrementQuantity} className="h-8 w-8 p-0 hover:bg-gray-200">
                 −
               </Button>
-              <span className="px-4 py-1 bg-white rounded font-medium min-w-[2rem] text-center">
-                {quantity}
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={incrementQuantity}
-                className="h-8 w-8 p-0 hover:bg-gray-200">
+              <span className="px-4 py-1 bg-white rounded font-medium min-w-[2rem] text-center">{quantity}</span>
+              <Button variant="ghost" size="sm" onClick={incrementQuantity} className="h-8 w-8 p-0 hover:bg-gray-200">
                 +
               </Button>
             </div>
@@ -171,10 +156,11 @@ export function ItemModal({ isOpen, onClose, item }: ItemModalProps) {
         </div>
 
         {/* Add to Cart Button - Fixed at bottom */}
-        <div className="p-6 pt-4 border-t border-gray-100 bg-white">
-          <Button
-            onClick={handleAddToCart}
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white">
+        <div className="flex flex-row gap-2 p-6 pt-4 border-t border-gray-300 bg-white">
+          <Button variant="destructive" onClick={onClose} className="w-10 hover:bg-gray-100">
+            X
+          </Button>
+          <Button onClick={handleAddToCart} className="w-full bg-amber-500 hover:bg-amber-600! text-white">
             Add {quantity} to Cart • {formatCurrency(item.priceCents * quantity)}
           </Button>
         </div>
