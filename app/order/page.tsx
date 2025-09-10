@@ -8,6 +8,7 @@ import { useUIStore } from '@/store/ui';
 import { CartSheet } from '@/components/cart-sheet';
 import { ItemModal } from '@/components/item-modal';
 import { MenuItemCard } from '@/components/menu-item-card';
+import Link from 'next/link';
 
 export default function OrderPage() {
   // Function to get icon based on category
@@ -89,6 +90,32 @@ export default function OrderPage() {
     return () => clearTimeout(t);
   }, []);
 
+  // Active order banner (from sessionStorage)
+  const [activeOrder, setActiveOrder] = useState<{
+    orderId: string;
+    customerName?: string;
+    status?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('lastOrder');
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as {
+        orderId?: string;
+        customerName?: string;
+        status?: string;
+      };
+      if (parsed?.orderId && parsed?.status === 'in_progress') {
+        setActiveOrder({
+          orderId: parsed.orderId,
+          customerName: parsed.customerName,
+          status: parsed.status,
+        });
+      }
+    } catch {}
+  }, []);
+
   // Scroll to section when tab is clicked
   const scrollToSection = (category: typeof active) => {
     setActive(category);
@@ -139,7 +166,7 @@ export default function OrderPage() {
     <div className="relative pb-4">
       {/* Fixed tabs section - higher z-index and positioned to be above navbar */}
       <div className="bg-white sticky top-0 z-10 shadow-sm py-4">
-        <div className="relative container mx-auto px-4 flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
+        <div className="relative container md:max-w-5xl 2xl:max-w-7xl mx-auto px-4 flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
           <div className="thin-scrollbar flex-grow flex flex-row items-center">
             {categories.map((c) => (
               <TabsTrigger
@@ -168,15 +195,42 @@ export default function OrderPage() {
 
           {/* Cart icon in filter bar when scrolled - positioned at far right */}
           {scrolled && (
-            <div className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 translate-x-22  items-center justify-center p-2 rounded-full bg-white/90 hover:bg-gray-200 transition-colors border border-black/20">
+            <div className="hidden md:flex absolute -right-10 top-1/2 -translate-y-1/2 items-center justify-center p-2 rounded-full bg-white/90 hover:bg-gray-200 transition-colors border border-black/20">
               <CartSheet />
             </div>
           )}
         </div>
       </div>
 
+      {/* Active order status bar */}
+      {activeOrder && (
+        <div className="bg-green-50 border-y border-green-200">
+          <div className="container max-w-6xl mx-auto px-4 py-3">
+            {(() => {
+              const statusHref = {
+                pathname: '/order/status',
+                query: {
+                  orderId: activeOrder.orderId,
+                  ...(activeOrder.customerName ? { name: activeOrder.customerName } : {}),
+                },
+              };
+              return (
+                <Link
+                  href={statusHref}
+                  className="flex items-center justify-between text-green-800 hover:text-green-900 group">
+                  <span className="text-sm">
+                    An order is in progress{activeOrder.customerName ? ` for ${activeOrder.customerName}` : ''}.{' '}
+                    <span className="group-hover:underline underline-offset-3">View status →</span>
+                  </span>
+                </Link>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
       {/* Content container */}
-      <div className="container mx-auto px-4 mt-4">
+      <div className="container max-w-6xl mx-auto px-4 mt-4">
         <div className="flex items-center gap-2 pt-2">
           <div className="flex items-center gap-2">
             <Switch checked={showOnlyVeg} onCheckedChange={setShowOnlyVeg} id="veg-filter" />

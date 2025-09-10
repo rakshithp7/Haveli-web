@@ -16,6 +16,7 @@ export function Navbar() {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const isOrderPage = pathname === '/order';
+  const isOrderSubpage = pathname.startsWith('/order/') && !isOrderPage;
 
   // Handle scroll detection for all pages
   useMotionValueEvent(scrollY, 'change', (v) => {
@@ -140,8 +141,10 @@ export function Navbar() {
                   ? 'Catering'
                   : pathname === '/order'
                   ? 'Order'
-                  : pathname === '/order/confirm'
+                  : pathname === '/order/checkout'
                   ? 'Checkout'
+                  : pathname === '/order/status'
+                  ? 'Order Status'
                   : 'Home'}
               </span>
             </div>
@@ -232,18 +235,20 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Floating Cart Icon - hidden on order page when scrolled */}
-      <div className="absolute top-4 right-4 md:right-8 z-40">
-        <div
-          className={cn(
-            'flex items-center justify-center p-2 rounded-full border border-black/20 transition-all duration-300',
-            scrolled || !isHomePage
-              ? 'bg-white/90 dark:bg-black/70 text-black dark:text-white hover:bg-gray-200'
-              : 'bg-black/30 text-white hover:bg-white/20'
-          )}>
-          <CartSheet />
+      {/* Floating Cart Icon - hidden on order subpages and hidden on order page when scrolled */}
+      {!isOrderSubpage && (
+        <div className="absolute top-4 right-4 md:right-8 z-40">
+          <div
+            className={cn(
+              'flex items-center justify-center p-2 rounded-full border border-black/20 transition-all duration-300',
+              scrolled || !isHomePage
+                ? 'bg-white/90 dark:bg-black/70 text-black dark:text-white hover:bg-gray-200'
+                : 'bg-black/30 text-white hover:bg-white/20'
+            )}>
+            <CartSheet />
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }

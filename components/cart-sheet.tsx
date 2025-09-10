@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { getItemById } from '@/data/menu';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Sheet,
   SheetTrigger,
@@ -26,6 +27,7 @@ export function CartSheet() {
   const count = useCartStore((s) => Object.values(s.lines).reduce((a, l) => a + l.qty, 0));
   const [open, setOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const router = useRouter();
 
   // Manually hydrate the Zustand store when the component mounts (client-side only)
   useEffect(() => {
@@ -38,6 +40,12 @@ export function CartSheet() {
   const taxRate = 0.075; // 7.5% sales tax
   const taxAmount = Math.round(subtotal * taxRate);
   const totalWithTax = subtotal + taxAmount;
+
+  // Function to handle checkout - redirects to checkout page
+  const handleCheckout = () => {
+    setOpen(false);
+    router.push('/order/checkout');
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -172,11 +180,9 @@ export function CartSheet() {
                 <span>{formatCurrency(totalWithTax)}</span>
               </div>
 
-              <SheetClose asChild>
-                <Link href="/order" className="w-full">
-                  <Button className="w-full bg-amber-500 hover:bg-amber-600! text-white">Checkout</Button>
-                </Link>
-              </SheetClose>
+              <Button onClick={handleCheckout} className="w-full bg-amber-500 hover:bg-amber-600! text-white">
+                Checkout
+              </Button>
             </div>
           </SheetFooter>
         )}

@@ -68,11 +68,11 @@ export function MenuItemCard({ item, onOpenModal }: MenuItemCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden border border-black/10 rounded-xl">
+    <Card className="overflow-hidden border border-black/10 rounded-xl flex flex-col h-full">
       <div className="relative aspect-[4/3]">
         <Image src={item.image} alt={item.name} fill className="object-cover" />
       </div>
-      <CardContent className="p-4">
+      <CardContent className="flex flex-col p-4 flex-1">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-lg">{item.name}</h3>
           <span className="text-brand font-semibold">{formatCurrency(item.priceCents)}</span>
@@ -82,7 +82,7 @@ export function MenuItemCard({ item, onOpenModal }: MenuItemCardProps) {
           {item.veg && <Badge className="badge-veg">🌿 Veg</Badge>}
           {item.spicy && <Badge className="badge-spicy">🌶 Spicy</Badge>}
         </div>
-        <div className="mt-4">
+        <div className="mt-auto pt-4">
           <QuantityControl />
         </div>
       </CardContent>

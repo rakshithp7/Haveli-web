@@ -13,9 +13,11 @@ const schema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   phone: z.string().min(7),
-  topic: z.enum(['General', 'Order', 'Catering', 'Feedback']).default('General'),
+  topic: z.enum(['General', 'Order', 'Catering', 'Feedback']),
   message: z.string().min(5),
 });
+
+type Topic = z.infer<typeof schema>['topic'];
 
 export default function ContactPage() {
   const form = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues: { topic: 'General' } });
@@ -73,7 +75,9 @@ export default function ContactPage() {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium">Topic</label>
-            <Select value={form.watch('topic')} onChange={(e) => form.setValue('topic', e.target.value as any)}>
+            <Select
+              value={form.watch('topic')}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => form.setValue('topic', e.target.value as Topic)}>
               {(['General', 'Order', 'Catering', 'Feedback'] as const).map((t) => (
                 <option value={t} key={t}>
                   {t}

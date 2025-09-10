@@ -17,7 +17,7 @@ const schema = z.object({
   phone: z.string().min(7),
   date: z.string().min(4),
   time: z.string().min(1),
-  headcount: z.coerce.number().min(10),
+  headcount: z.number().min(10),
   venue: z.string().min(2),
   notes: z.string().max(500).optional(),
 });

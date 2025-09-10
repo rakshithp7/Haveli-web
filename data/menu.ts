@@ -1,10 +1,10 @@
 export type MenuCategoryKey =
-  | "Appetizers Veg"
-  | "Appetizers Non-Veg"
-  | "Entrees Veg"
-  | "Entrees Chicken"
-  | "Breads"
-  | "Drinks";
+  | 'Appetizers Veg'
+  | 'Appetizers Non-Veg'
+  | 'Entrees Veg'
+  | 'Entrees Chicken'
+  | 'Breads'
+  | 'Drinks';
 
 export type MenuItem = {
   id: string;
@@ -19,79 +19,79 @@ export type MenuItem = {
 };
 
 export const categories: MenuCategoryKey[] = [
-  "Appetizers Veg",
-  "Appetizers Non-Veg",
-  "Entrees Veg",
-  "Entrees Chicken",
-  "Breads",
-  "Drinks",
+  'Appetizers Veg',
+  'Appetizers Non-Veg',
+  'Entrees Veg',
+  'Entrees Chicken',
+  'Breads',
+  'Drinks',
 ];
 
 export const menu: MenuItem[] = [
   {
-    id: "veg-samosa",
-    name: "Samosa",
-    description: "Crispy pastry stuffed with spiced potatoes and peas.",
+    id: 'veg-samosa',
+    name: 'Samosa',
+    description: 'Crispy pastry stuffed with spiced potatoes and peas.',
     priceCents: 399,
-    image: "/images/samosa.jpg",
-    category: "Appetizers Veg",
+    image: '/images/samosa.jpg',
+    category: 'Appetizers Veg',
     veg: true,
     featured: true,
   },
   {
-    id: "paneer-tikka",
-    name: "Paneer Tikka",
-    description: "Marinated cottage cheese grilled to perfection.",
+    id: 'paneer-tikka',
+    name: 'Paneer Tikka',
+    description: 'Marinated cottage cheese grilled to perfection.',
     priceCents: 1299,
-    image: "/images/paneertikka.jpg",
-    category: "Appetizers Veg",
+    image: '/images/paneertikka.jpg',
+    category: 'Appetizers Veg',
     veg: true,
     featured: true,
   },
   {
-    id: "chicken-tikka",
-    name: "Chicken Tikka",
-    description: "Boneless chicken, yogurt marinade, charred edges.",
+    id: 'chicken-tikka',
+    name: 'Chicken Tikka',
+    description: 'Boneless chicken, yogurt marinade, charred edges.',
     priceCents: 1499,
-    image: "/images/chickentikka.jpg",
-    category: "Appetizers Non-Veg",
+    image: '/images/chickentikka.jpg',
+    category: 'Appetizers Non-Veg',
     spicy: true,
   },
   {
-    id: "butter-chicken",
-    name: "Butter Chicken",
-    description: "Creamy tomato sauce, tender chicken, fenugreek.",
+    id: 'butter-chicken',
+    name: 'Butter Chicken',
+    description: 'Creamy tomato sauce, tender chicken, fenugreek.',
     priceCents: 1699,
-    image: "/images/butterchicken.jpg",
-    category: "Entrees Chicken",
+    image: '/images/butterchicken.jpg',
+    category: 'Entrees Chicken',
     featured: true,
   },
   {
-    id: "chana-masala",
-    name: "Chana Masala",
-    description: "Chickpeas in a tangy, spiced gravy.",
+    id: 'chana-masala',
+    name: 'Chana Masala',
+    description: 'Chickpeas in a tangy, spiced gravy.',
     priceCents: 1299,
-    image: "/images/channamasla.jpg",
-    category: "Entrees Veg",
+    image: '/images/channamasla.jpg',
+    category: 'Entrees Veg',
     veg: true,
     spicy: true,
   },
   {
-    id: "naan",
-    name: "Butter Naan",
-    description: "Soft tandoor-baked leavened bread.",
+    id: 'naan',
+    name: 'Butter Naan',
+    description: 'Soft tandoor-baked leavened bread.',
     priceCents: 399,
-    image: "/images/butternaan.jpg",
-    category: "Breads",
+    image: '/images/butternaan.jpg',
+    category: 'Breads',
     veg: true,
   },
   {
-    id: "mango-lassi",
-    name: "Mango Lassi",
-    description: "Sweet mango yogurt smoothie.",
+    id: 'mango-lassi',
+    name: 'Mango Lassi',
+    description: 'Sweet mango yogurt smoothie.',
     priceCents: 499,
-    image: "/images/mangolassi.jpg",
-    category: "Drinks",
+    image: '/images/mangolassi.jpg',
+    category: 'Drinks',
     veg: true,
   },
 ];
