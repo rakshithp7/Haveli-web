@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cart';
 import { formatCurrency } from '@/lib/utils';
@@ -14,10 +14,17 @@ export default function CheckoutPage() {
   const clear = useCartStore((s) => s.clear);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // Form state
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+
+  // Manually hydrate the Zustand store when the component mounts (client-side only)
+  useEffect(() => {
+    useCartStore.persist.rehydrate();
+    setIsHydrated(true);
+  }, []);
 
   // Calculate totals
   const subtotal = Object.values(lines).reduce((a, l) => a + l.priceCents * l.qty, 0);
@@ -25,7 +32,17 @@ export default function CheckoutPage() {
   const taxAmount = Math.round(subtotal * taxRate);
   const totalWithTax = subtotal + taxAmount;
 
-  // If cart is empty, show empty state instead of redirecting
+  // Show loading state while store is hydrating
+  if (!isHydrated) {
+    return (
+      <div className="container max-w-3xl mx-auto py-12 px-4 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading checkout...</p>
+      </div>
+    );
+  }
+
+  // If cart is empty after hydration, show empty state
   if (Object.keys(lines).length === 0) {
     return (
       <div className="container max-w-3xl mx-auto py-12 px-4 text-center">
@@ -57,41 +74,63 @@ export default function CheckoutPage() {
       setIsProcessing(true);
       setError('');
 
-      // Create simplified line items for API
+      // Create line items with customizations for API
       const lineItems = Object.values(lines).map((item) => ({
         id: item.id,
         qty: item.qty,
+        spiceLevel: item.spiceLevel,
+        specialInstructions: item.specialInstructions,
       }));
 
-      // Create payment intent
-      const response = await fetch('/api/create-payment-intent', {
+      // Create Stripe checkout session
+      const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           lines: lineItems,
-          tipPercent: 0, // No tip by default
           customerInfo: { name, phone },
         }),
       });
 
       const data = await response.json();
 
-      if (data.error) {
-        throw new Error(data.error);
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Failed to create checkout session');
       }
 
-      if (!data.orderId) {
-        throw new Error('Missing order information in response');
+      if (!data.url) {
+        throw new Error('Missing checkout URL');
       }
 
-      // Clear cart and redirect to confirmation (include customer name)
-      clear();
-      const nameParam = encodeURIComponent(name.trim());
-      router.push(`/order/status?orderId=${data.orderId}&name=${nameParam}`);
+      // Store order details for status page before redirecting
+      try {
+        const orderDetails = {
+          orderId: data.orderId,
+          customerName: name,
+          items: lineItems.map(item => {
+            const menuItem = Object.values(lines).find(l => l.id === item.id);
+            return {
+              ...item,
+              name: menuItem?.name || '',
+              priceCents: menuItem?.priceCents || 0,
+              total: (menuItem?.priceCents || 0) * item.qty
+            };
+          }),
+          subtotal: Object.values(lines).reduce((sum, item) => sum + (item.priceCents * item.qty), 0),
+          tax: Math.round(Object.values(lines).reduce((sum, item) => sum + (item.priceCents * item.qty), 0) * 0.075),
+          total: totalWithTax
+        };
+        sessionStorage.setItem(`orderDetails_${data.orderId}`, JSON.stringify(orderDetails));
+      } catch (e) {
+        console.warn('Could not store order details:', e);
+      }
+
+      // Redirect to Stripe checkout (don't clear cart until payment is confirmed)
+      window.location.href = data.url;
     } catch (err) {
-      console.error('Payment error:', err);
+      console.error('Checkout error:', err);
       setError(err instanceof Error ? err.message : 'Payment processing failed');
     } finally {
       setIsProcessing(false);
@@ -179,10 +218,10 @@ export default function CheckoutPage() {
               {isProcessing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing Payment...
+                  Redirecting to Payment...
                 </>
               ) : (
-                `Pay ${formatCurrency(totalWithTax)}`
+                `Continue to Payment • ${formatCurrency(totalWithTax)}`
               )}
             </Button>
           </div>

@@ -88,7 +88,7 @@ export function CartSheet() {
                 {Object.values(lines).map((l) => {
                   const menuItem = getItemById(l.id);
                   return (
-                    <li key={l.id} className="py-4">
+                    <li key={l.cartId} className="py-4">
                       <div className="flex gap-3 p-1">
                         {/* Item Image */}
                         <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">

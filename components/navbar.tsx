@@ -214,10 +214,10 @@ export function Navbar() {
               Menu
             </Link>
             <Link
-              href="/order"
-              className={cn('rounded-md px-2 py-2 hover:bg-black/5 nav-link', pathname === '/order' && 'active')}
+              href="/contact"
+              className={cn('rounded-md px-2 py-2 hover:bg-black/5 nav-link', pathname === '/contact' && 'active')}
               onClick={() => setOpen(false)}>
-              Order
+              Contact
             </Link>
             <Link
               href="/catering"
@@ -226,10 +226,10 @@ export function Navbar() {
               Catering
             </Link>
             <Link
-              href="/contact"
-              className={cn('rounded-md px-2 py-2 hover:bg-black/5 nav-link', pathname === '/contact' && 'active')}
+              href="/order"
+              className={cn('rounded-md px-2 py-2 hover:bg-black/5 nav-link', pathname === '/order' && 'active')}
               onClick={() => setOpen(false)}>
-              Contact
+              Order
             </Link>
           </div>
         </div>
