@@ -123,25 +123,13 @@ export default function HomePage() {
             </div>
             <ul className="text-sm text-muted space-y-1">
               <li>
-                <span className="font-medium">Monday:</span> 11:30am–3pm, 5pm–10pm
+                <span className="font-medium">Mon-Thu:</span> 11:30 AM - 9:30 PM
               </li>
               <li>
-                <span className="font-medium">Tuesday:</span> Closed
+                <span className="font-medium">Fri-Sat:</span> 11:30 AM - 10:00 PM
               </li>
               <li>
-                <span className="font-medium">Wednesday:</span> 11:30am–3pm, 5pm–10pm
-              </li>
-              <li>
-                <span className="font-medium">Thursday:</span> 11:30am–3pm, 5pm–10pm
-              </li>
-              <li>
-                <span className="font-medium">Friday:</span> 11:30am–3pm, 5pm–11pm
-              </li>
-              <li>
-                <span className="font-medium">Saturday:</span> 11:30am–3pm, 5pm–11pm
-              </li>
-              <li>
-                <span className="font-medium">Sunday:</span> 11:30am–3pm, 5pm–10pm
+                <span className="font-medium">Sunday:</span> 12:00 PM - 9:00 PM
               </li>
             </ul>
           </CardContent>
@@ -149,11 +137,11 @@ export default function HomePage() {
         <Card>
           <CardContent>
             <h3 className="mb-2 text-lg font-semibold">Location</h3>
-            <p className="text-sm text-muted">1251 E Fowler Ave, Tampa, FL 33612</p>
+            <p className="text-sm text-muted">12908 N Dale Mabry Hwy, Tampa, FL 33618</p>
             <div className="mt-3 overflow-hidden rounded-md">
               <iframe
                 title="Google Map"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3522.779595015724!2d-82.44811578498513!3d28.05393408265754!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88c2c7b0a2d9762d%3A0xa4a741025efd9983!2sHaveli%20Indian%20Kitchen!5e0!3m2!1sen!2sus!4v1716264598830!5m2!1sen!2sus"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3520.702614129809!2d-82.5053142!3d28.0641035!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88c2c15ee95eab43%3A0xdd5a43168c132d9b!2sHaveli%20Indian%20Kitchen!5e0!3m2!1sen!2sus!4v1757308140368!5m2!1sen!2sus"
                 width="100%"
                 height="220"
                 loading="lazy"
