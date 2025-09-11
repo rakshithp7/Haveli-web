@@ -8,7 +8,7 @@ export default function MenuPage() {
       <h1 className="text-3xl font-semibold mb-8 text-center">Our Menu</h1>
       <p className="text-center text-muted max-w-2xl mx-auto mb-10">
         Browse our delicious menu items below. For ordering, please visit our{' '}
-        <Link href="/order" className="text-[--color-brand] hover:underline">
+        <Link href="/order" className="text-brand hover:underline">
           order page
         </Link>
         .
@@ -18,14 +18,11 @@ export default function MenuPage() {
         <section className="py-4">
           <div className="bg-neutral-50 p-8 rounded-lg text-center">
             <div className="aspect-[16/9] relative mb-4">
-              <Image
-                src="/images/placeholder.svg"
-                alt={`menu section`}
-                fill
-                className="object-cover rounded-md opacity-50"
-              />
+              <Image src="/images/menu1.jpeg" alt={`menu section`} fill className="object-cover rounded-md " />
             </div>
-            <p className="text-muted mb-4">Menu images coming soon</p>
+            <div className="aspect-[16/9] relative mb-4">
+              <Image src="/images/menu2.jpeg" alt={`menu section`} fill className="object-cover rounded-md " />
+            </div>
           </div>
         </section>
       </div>

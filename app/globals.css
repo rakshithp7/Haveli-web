@@ -15,8 +15,6 @@ Pure White (#FFFFFF): For backgrounds and contrast
 
 /* Tailwind v4 custom theme tokens */
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue,
-    Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
   --color-bg: hsl(0 0% 100%);
   --color-fg: hsl(225 30% 12%);
   --color-muted: hsl(220 10% 50%);
@@ -24,51 +22,48 @@ Pure White (#FFFFFF): For backgrounds and contrast
   --color-brand-600: #d97706;
   --color-brand-700: #b45309;
   --radius: 14px;
-}
-
-:root {
-  /* color-scheme: dark; */
-  --radius: 0.625rem;
 
   /* Theme Colors for our site */
-  --background: 0 0% 100%;
-  --foreground: 225 30% 12%;
+  /* --color-background: hsl(0 0% 100%); */
+  /* --color-foreground: hsl(225 30% 12%); */
 
   /* Brand Colors */
-  --primary: 35 95% 50%; /* --color-brand */
-  --primary-foreground: 0 0% 0%; /* Text on primary color */
+  /* --color-primary: rgba(255, 255, 255, 0.8); */
+  /* --color-primary-foreground: rgb(0 0% 0%); */
 
   /* UI Colors */
-  --card: 0 0% 100%;
-  --card-foreground: 225 30% 12%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 225 30% 12%;
-  --secondary: 210 20% 96%;
-  --secondary-foreground: 225 30% 12%;
-  --muted: 210 20% 96%;
-  --muted-foreground: 215 16% 50%;
-  --accent: 210 20% 96%;
-  --accent-foreground: 225 30% 12%;
-  --destructive: 0 80% 50%;
-  --destructive-foreground: 0 0% 100%;
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(225 30% 12%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(225 30% 12%);
+  --color-secondary: hsl(210 20% 96%);
+  --color-secondary-foreground: hsl(225 30% 12%);
+  /* --color-muted: hsl(210 20% 96%);
+  --color-muted-foreground: hsl(215 16% 50%); */
+  --color-accent: hsl(210 20% 96%);
+  --color-accent-foreground: hsl(225 30% 12%);
+  --destructive: hsl(0 80% 50%);
+  --destructive-foreground: hsl(0 0% 100%);
 
   /* Borders and Effects */
-  --border: 220 14% 90%;
-  --input: 220 14% 90%;
-  --ring: 35 95% 50%;
+  --color-border: hsl(220 14% 90%);
+  --color-input: hsl(220 14% 90%);
+  --color-ring: hsl(35 95% 50%);
 }
 
+/* All theme variables are now in the @theme block above */
+
 body {
-  @apply bg-[--color-bg] text-[--color-fg] antialiased;
+  @apply bg-white text-black antialiased;
 }
 
 @layer base {
   * {
     @apply border-[--border] outline-[--ring]/50;
   }
+
   .font-lexend {
     font-family: var(--font-lexend), var(--font-sans);
-    font-feature-settings: 'ss01' 1, 'ss03' 1;
   }
 
   /* Nav link hover underline animation */
@@ -82,6 +77,44 @@ body {
   }
 
   .nav-link:hover::after {
-    @apply w-full;
+    @apply w-1/5 md:w-full;
+  }
+
+  /* Keep underline visible for active navigation links */
+  .nav-link.active::after {
+    @apply w-1/5 md:w-full;
+  }
+
+  /* Custom thin scrollbar that's always visible */
+  .thin-scrollbar {
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* For Firefox */
+    -webkit-overflow-scrolling: touch; /* For iOS */
+    overflow-x: scroll; /* Always show scrollbar */
+    /* Trick to ensure scrollbar is always visible in webkit browsers */
+    padding-bottom: 10px; /* Space for scrollbar */
+    margin-bottom: -10px; /* Offset the padding to maintain layout */
+  }
+
+  /* WebKit (Chrome, Safari, newer Edge) scrollbar styling */
+  .thin-scrollbar::-webkit-scrollbar {
+    height: 4px; /* Slightly thicker to ensure visibility */
+    width: 4px; /* Thin vertical scrollbar */
+    display: block; /* Force display */
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 0 20px; /* Add some margin to ensure it's always visible */
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3); /* Slightly darker for better visibility */
+    border-radius: 20px;
+    min-width: 30px; /* Ensure there's always something to scroll */
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.5);
   }
 }

@@ -1,34 +1,14 @@
 'use client';
-import Image from 'next/image';
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { categories, getMenuByCategory } from '@/data/menu';
-import { formatCurrency } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect, useRef } from 'react';
+import { categories, getMenuByCategory, MenuItem } from '@/data/menu';
 import { TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
-import { useCartStore } from '@/store/cart';
-import { toast } from '@/components/ui/use-toast';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import { env } from '@/lib/env';
-import { useRouter } from 'next/navigation';
-
-const stripePromise = env.stripe.pk ? loadStripe(env.stripe.pk) : null;
-
-const schema = z.object({
-  name: z.string().min(2),
-  phone: z.string().min(7),
-  tipPercent: z.enum(['0', '10', '15', '20']).default('0'),
-  pickup: z.enum(['ASAP', '+15', '+30']).default('ASAP'),
-  notes: z.string().max(300).optional(),
-});
-type Values = z.infer<typeof schema>;
+import { Switch } from '@/components/ui/switch';
+import { useUIStore } from '@/store/ui';
+import { CartSheet } from '@/components/cart-sheet';
+import { ItemModal } from '@/components/item-modal';
+import { MenuItemCard } from '@/components/menu-item-card';
+import Link from 'next/link';
 
 export default function OrderPage() {
   // Function to get icon based on category
@@ -81,23 +61,59 @@ export default function OrderPage() {
 
   const [active, setActive] = useState(categories[0]);
   const [searchQuery, setSearchQuery] = useState('');
-  const add = useCartStore((s) => s.add);
-  const lines = useCartStore((s) => s.lines);
-  const remove = useCartStore((s) => s.remove);
-  const setQty = useCartStore((s) => s.setQty);
-  const clear = useCartStore((s) => s.clear);
+  const [showOnlyVeg, setShowOnlyVeg] = useState(false);
+  const scrolled = useUIStore((s) => s.navScrolled);
+
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    priceCents: number;
+    image: string;
+    veg?: boolean;
+    spicy?: boolean;
+  } | null>(null);
+
+  const openItemModal = (item: MenuItem) => {
+    setSelectedItem(item);
+    setModalOpen(true);
+  };
+
+  // We've moved the QuantityControl component to MenuItemCard
   const [loading, setLoading] = useState(true);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
-
-  const subtotal = useMemo(() => Object.values(lines).reduce((a, l) => a + l.priceCents * l.qty, 0), [lines]);
-  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { tipPercent: '0', pickup: 'ASAP' } });
-  const tipPercent = Number(form.watch('tipPercent'));
-  const tipCents = Math.round((subtotal * tipPercent) / 100);
-  const totalCents = subtotal + tipCents;
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 400);
     return () => clearTimeout(t);
+  }, []);
+
+  // Active order banner (from sessionStorage)
+  const [activeOrder, setActiveOrder] = useState<{
+    orderId: string;
+    customerName?: string;
+    status?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('lastOrder');
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as {
+        orderId?: string;
+        customerName?: string;
+        status?: string;
+      };
+      if (parsed?.orderId && parsed?.status === 'in_progress') {
+        setActiveOrder({
+          orderId: parsed.orderId,
+          customerName: parsed.customerName,
+          status: parsed.status,
+        });
+      }
+    } catch {}
   }, []);
 
   // Scroll to section when tab is clicked
@@ -134,23 +150,24 @@ export default function OrderPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [active, loading]);
 
-  // Filter all items based on search query
+  // Filter items based on search query and veg filter
   const filteredItems = searchQuery
     ? categories.flatMap((category) =>
         getMenuByCategory(category).filter(
           (item) =>
-            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.description.toLowerCase().includes(searchQuery.toLowerCase())
+            (!showOnlyVeg || item.veg === true) && // Show all items when filter is off, only veg items when on
+            (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              item.description.toLowerCase().includes(searchQuery.toLowerCase()))
         )
       )
     : [];
 
   return (
     <div className="relative pb-4">
-      {/* Fixed tabs section */}
-      <div className="sticky top-0 z-30 bg-white shadow-sm py-4">
-        <div className="container mx-auto px-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="overflow-x-auto flex-grow md:flex-grow-0 md:max-w-[75%] flex flex-row flex-nowrap items-center">
+      {/* Fixed tabs section - higher z-index and positioned to be above navbar */}
+      <div className="bg-white sticky top-0 z-10 shadow-sm py-4">
+        <div className="relative container md:max-w-5xl 2xl:max-w-7xl mx-auto px-4 flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
+          <div className="thin-scrollbar flex-grow flex flex-row items-center">
             {categories.map((c) => (
               <TabsTrigger
                 key={c}
@@ -164,21 +181,67 @@ export default function OrderPage() {
             ))}
           </div>
 
-          <div className="relative w-full md:w-auto max-w-[220px] shrink-0">
-            <Input
-              type="text"
-              placeholder="Search menu..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pr-10"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+          <div className="flex items-center gap-4 w-full md:max-w-[200px] shrink-0">
+            <div className="relative flex-1">
+              <Input
+                type="text"
+                placeholder="Search menu..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+            </div>
           </div>
+
+          {/* Cart icon in filter bar when scrolled - positioned at far right */}
+          {scrolled && (
+            <div className="hidden md:flex absolute -right-10 top-1/2 -translate-y-1/2 items-center justify-center p-2 rounded-full bg-white/90 hover:bg-gray-200 transition-colors border border-black/20">
+              <CartSheet />
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Active order status bar */}
+      {activeOrder && (
+        <div className="bg-green-50 border-y border-green-200">
+          <div className="container max-w-6xl mx-auto px-4 py-3">
+            {(() => {
+              const statusHref = {
+                pathname: '/order/status',
+                query: {
+                  orderId: activeOrder.orderId,
+                  ...(activeOrder.customerName ? { name: activeOrder.customerName } : {}),
+                },
+              };
+              return (
+                <Link
+                  href={statusHref}
+                  className="flex items-center justify-between text-green-800 hover:text-green-900 group">
+                  <span className="text-sm">
+                    An order is in progress{activeOrder.customerName ? ` for ${activeOrder.customerName}` : ''}.{' '}
+                    <span className="group-hover:underline underline-offset-3">View status →</span>
+                  </span>
+                </Link>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
       {/* Content container */}
-      <div className="container mx-auto px-4 mt-4">
+      <div className="container max-w-6xl mx-auto px-4 mt-4">
+        <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2">
+            <Switch checked={showOnlyVeg} onCheckedChange={setShowOnlyVeg} id="veg-filter" />
+            <label htmlFor="veg-filter" className="text-sm font-medium cursor-pointer flex items-center">
+              <span role="img" aria-label="Vegetarian" className="mr-1">
+                🌿
+              </span>
+              Veg only
+            </label>
+          </div>
+        </div>
         {/* Show search results if there's a search query */}
         {searchQuery && (
           <section className="py-6 mx-auto">
@@ -196,33 +259,7 @@ export default function OrderPage() {
                   </div>
                 ))
               ) : filteredItems.length > 0 ? (
-                filteredItems.map((item) => (
-                  <div key={item.id} className="card overflow-hidden">
-                    <div className="relative aspect-[4/3]">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" />
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-medium">{item.name}</h3>
-                        <span className="text-[--color-brand] font-semibold">{formatCurrency(item.priceCents)}</span>
-                      </div>
-                      <p className="mt-1 line-clamp-2 text-sm text-muted">{item.description}</p>
-                      <div className="mt-2 flex gap-2">
-                        {item.veg && <Badge className="badge-veg">🌿 Veg</Badge>}
-                        {item.spicy && <Badge className="badge-spicy">🌶 Spicy</Badge>}
-                      </div>
-                      <div className="mt-4">
-                        <Button
-                          onClick={() => {
-                            add({ id: item.id, name: item.name, priceCents: item.priceCents }, 1);
-                            toast.success(`${item.name} added to cart`);
-                          }}>
-                          Add
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))
+                filteredItems.map((item) => <MenuItemCard key={item.id} item={item} onOpenModal={openItemModal} />)
               ) : (
                 <div className="col-span-full text-center py-8">
                   <p className="text-lg text-muted">No items found matching &ldquo;{searchQuery}&rdquo;</p>
@@ -237,7 +274,7 @@ export default function OrderPage() {
           categories.map((category) => (
             <section
               key={category}
-              className="py-8 mx-auto scroll-m-36"
+              className="py-6 mx-auto scroll-m-36"
               ref={(el) => {
                 sectionRefs.current[category] = el;
               }}>
@@ -257,100 +294,16 @@ export default function OrderPage() {
                         </div>
                       </div>
                     ))
-                  : getMenuByCategory(category).map((item) => (
-                      <div key={item.id} className="card overflow-hidden">
-                        <div className="relative aspect-[4/3]">
-                          <Image src={item.image} alt={item.name} fill className="object-cover" />
-                        </div>
-                        <div className="p-4">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-medium">{item.name}</h3>
-                            <span className="text-[--color-brand] font-semibold">
-                              {formatCurrency(item.priceCents)}
-                            </span>
-                          </div>
-                          <p className="mt-1 line-clamp-2 text-sm text-muted">{item.description}</p>
-                          <div className="mt-2 flex gap-2">
-                            {item.veg && <Badge className="badge-veg">🌿 Veg</Badge>}
-                            {item.spicy && <Badge className="badge-spicy">🌶 Spicy</Badge>}
-                          </div>
-                          <div className="mt-4">
-                            <Button
-                              onClick={() => {
-                                add({ id: item.id, name: item.name, priceCents: item.priceCents }, 1);
-                                toast.success(`${item.name} added to cart`);
-                              }}>
-                              Add
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  : getMenuByCategory(category)
+                      .filter((item) => !showOnlyVeg || item.veg === true)
+                      .map((item) => <MenuItemCard key={item.id} item={item} onOpenModal={openItemModal} />)}
               </div>
             </section>
           ))}
       </div>
-    </div>
-  );
-}
 
-function CheckoutBox({
-  totalCents,
-  clearCart,
-  lines,
-  formValues,
-}: {
-  totalCents: number;
-  clearCart: () => void;
-  lines: ReturnType<typeof useCartStore.getState>['lines'];
-  formValues: ReturnType<typeof useForm<Values>>;
-}) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const router = useRouter();
-  const [submitting, setSubmitting] = useState(false);
-
-  async function onSubmit() {
-    if (!stripe || !elements) return;
-    const values = formValues.getValues();
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lines: Object.values(lines).map((l) => ({ id: l.id, qty: l.qty })),
-          tipPercent: Number(values.tipPercent),
-          contact: { name: values.name, phone: values.phone },
-          notes: values.notes,
-        }),
-      });
-      if (!res.ok) throw new Error('Failed to create payment intent');
-      const data = await res.json();
-      const { clientSecret, orderId } = data;
-      const result = await stripe.confirmPayment({
-        elements,
-        clientSecret,
-        confirmParams: { return_url: window.location.origin + '/order/confirm?orderId=' + orderId },
-        redirect: 'if_required',
-      });
-      if (result.error) throw result.error;
-      clearCart();
-      router.push(`/order/confirm?orderId=${orderId}`);
-    } catch (e) {
-      console.error(e);
-      alert('Payment failed. Please check details and try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <div>
-      <PaymentElement />
-      <Button onClick={onSubmit} disabled={submitting} className="w-full mt-3">
-        {submitting ? 'Processing…' : `Pay ${formatCurrency(totalCents)}`}
-      </Button>
+      {/* Item Modal */}
+      <ItemModal isOpen={modalOpen} onClose={() => setModalOpen(false)} item={selectedItem} />
     </div>
   );
 }

@@ -50,6 +50,18 @@
   - Simplified DOM structure by removing unnecessary nested divs and components
   - Fixed tab triggers layout to ensure horizontal alignment
 
+### 2024-10-XX: Cart Persistence Improvements
+
+#### Completed Changes
+
+- Implemented cart persistence using localStorage:
+  - Enhanced Zustand store configuration with proper localStorage integration
+  - Added browser environment detection for safe server-side rendering
+  - Implemented hydration state management to prevent UI flashing/mismatch
+  - Added fallback storage for server-side rendering contexts
+  - Ensured cart data persists across page refreshes and browser sessions
+  - Updated cart component with hydration awareness to prevent React hydration errors
+
 ## Previous Updates
 
 ### 2024-09-XX: Next.js and React Update
@@ -89,6 +101,18 @@
 - Address any breaking changes in the codebase
 - Consider implementing new features where applicable
 - Add menu images to the simplified menu page
+
+### 2025-09-10: Stripe Payment Integration
+
+#### Completed Changes
+
+- Integrated Stripe payment processing for online orders:
+  - Connected checkout button to Stripe payment API
+  - Added payment processing state handling to improve UX
+  - Utilized existing create-payment-intent API endpoint
+  - Implemented order flow with successful payment confirmation
+  - Added loading state for checkout button during payment processing
+  - Simplified checkout process with direct API integration
 
 ## Recent Updates
 
